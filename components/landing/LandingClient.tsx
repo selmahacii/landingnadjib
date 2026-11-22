@@ -8,6 +8,8 @@ import { Gallery } from "./Gallery";
 import { VariantPicker } from "./VariantPicker";
 import { OfferPicker } from "./OfferPicker";
 import { BenefitsSection } from "./BenefitsSection";
+import { WilayaCommuneSelect, type DeliverySelection } from "./WilayaCommuneSelect";
+import { calculateTotal } from "@/lib/pricing";
 
 interface LandingClientProps {
   offers: Offer[];
@@ -30,17 +32,20 @@ export const LandingClient: React.FC<LandingClientProps> = ({
     defaultVariant ? defaultVariant.variant_id : ""
   );
 
+  const [deliverySelection, setDeliverySelection] = useState<DeliverySelection | null>(null);
+
   const selectedOffer = offers.find((o) => o.offer_id === selectedOfferId) || offers[0];
   const selectedVariant = variants.find((v) => v.variant_id === selectedVariantId) || variants[0];
 
-  // Collect gallery images from variants or product
+  const deliveryPrice = deliverySelection?.wilaya_code ? deliverySelection.prix_livraison : 0;
+  const total = calculateTotal({ offer: selectedOffer, deliveryPrice });
+
+  // Collect gallery images
   const galleryImages = variants
     .filter((v) => v.image_url)
     .map((v) => v.image_url);
 
-  // If selected variant has image, prioritize showing it
   const activeImage = selectedVariant?.image_url;
-  const activeImageIndex = activeImage ? galleryImages.indexOf(activeImage) : 0;
 
   return (
     <div className="min-h-screen bg-neutral-50 pb-20">
@@ -83,14 +88,50 @@ export const LandingClient: React.FC<LandingClientProps> = ({
           onSelect={(id) => setSelectedOfferId(id)}
         />
 
-        {/* Order Form Placeholder (wired in Task 9) */}
-        <div id="order-form-section" className="bg-white rounded-2xl p-6 border-2 border-amber-500 shadow-md">
-          <h3 className="text-lg font-bold text-neutral-900 mb-2">
-            استمارة الطلب السريع (الدفع عند الاستلام)
-          </h3>
-          <p className="text-xs text-neutral-500">
-            (سيتم تفعيل حقول الطلب وحساب التوصيل في الخطوة القادمة)
-          </p>
+        {/* Order Form Container with Wilaya/Commune and Live Total */}
+        <div id="order-form-section" className="bg-white rounded-2xl p-6 border-2 border-amber-600/70 shadow-lg space-y-5">
+          <div className="border-b border-neutral-100 pb-3">
+            <h3 className="text-xl font-extrabold text-neutral-900">
+              استمارة الطلب (الدفع عند الاستلام)
+            </h3>
+            <p className="text-xs text-neutral-500 mt-1">
+              املأ معلوماتك وسنتصل بك لتأكيد طلبك قبل الشحن
+            </p>
+          </div>
+
+          {/* Wilaya & Commune Selection */}
+          <WilayaCommuneSelect
+            tariffs={tariffs}
+            onChange={(sel) => setDeliverySelection(sel)}
+          />
+
+          {/* Real-time Order Summary / Pricing Breakdown */}
+          <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-200/80 space-y-2.5">
+            <div className="flex justify-between items-center text-sm text-neutral-700">
+              <span>سعر العرض ({selectedOffer?.titre_ar}):</span>
+              <span className="font-bold text-neutral-900">{selectedOffer?.prix_dzd} دج</span>
+            </div>
+
+            <div className="flex justify-between items-center text-sm text-neutral-700">
+              <span>سعر التوصيل:</span>
+              <span className="font-bold text-neutral-900">
+                {selectedOffer?.livraison_gratuite ? (
+                  <span className="text-emerald-600 font-extrabold">0 دج - مجاني</span>
+                ) : deliverySelection?.wilaya_code ? (
+                  `${deliveryPrice} دج`
+                ) : (
+                  <span className="text-neutral-400 font-normal">اختر الولاية لحساب التوصيل</span>
+                )}
+              </span>
+            </div>
+
+            <div className="border-t border-amber-200/60 pt-2.5 flex justify-between items-center">
+              <span className="font-extrabold text-neutral-900 text-base">المجموع الكلي:</span>
+              <span className="text-xl font-black text-amber-700">
+                {total} دج
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Benefits & Features Grid */}
