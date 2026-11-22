@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { Offer } from "@/lib/sheets/offers";
 import type { Variant } from "@/lib/sheets/variants";
@@ -13,6 +13,7 @@ import { WilayaCommuneSelect, type DeliverySelection } from "./WilayaCommuneSele
 import { OrderForm } from "./OrderForm";
 import { StickyCTA } from "./StickyCTA";
 import { calculateTotal } from "@/lib/pricing";
+import { trackPixelEvent } from "@/lib/meta/pixel";
 
 interface LandingClientProps {
   offers: Offer[];
@@ -44,6 +45,37 @@ export const LandingClient: React.FC<LandingClientProps> = ({
 
   const deliveryPrice = deliverySelection?.wilaya_code ? deliverySelection.prix_livraison : 0;
   const total = calculateTotal({ offer: selectedOffer, deliveryPrice });
+
+  // Fire ViewContent on mount (dual client Pixel + server CAPI dedup)
+  useEffect(() => {
+    const eventId = `vc_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+    const value = selectedOffer?.prix_dzd || 2000;
+
+    trackPixelEvent(
+      "ViewContent",
+      {
+        content_name: "Porte feuille Classe",
+        value,
+        currency: "DZD",
+      },
+      eventId
+    );
+
+    fetch("/api/meta-capi", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        event_name: "ViewContent",
+        event_id: eventId,
+        event_source_url: window.location.href,
+        custom_data: {
+          content_name: "Porte feuille Classe",
+          value,
+          currency: "DZD",
+        },
+      }),
+    }).catch(() => {});
+  }, []);
 
   // Collect gallery images
   const galleryImages = variants

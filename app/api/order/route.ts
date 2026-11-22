@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { recordOrder, type OrderInput } from "@/lib/sheets/orders";
 import { normalizePhone } from "@/lib/phone";
+import { sendCapiEvent } from "@/lib/meta/capi";
 
 export async function POST(request: Request) {
   try {
@@ -117,9 +118,39 @@ export async function POST(request: Request) {
       );
     }
 
+    const event_id = `pur_${result.order_id}`;
+
+    // Server-side Purchase CAPI fire with deduplication event_id (non-blocking)
+    const forwardedFor = request.headers.get("x-forwarded-for");
+    const clientIp = forwardedFor ? forwardedFor.split(",")[0].trim() : undefined;
+    const userAgent = request.headers.get("user-agent") || undefined;
+
+    sendCapiEvent({
+      event_name: "Purchase",
+      event_id,
+      event_source_url: request.url,
+      user_data: {
+        ph: orderInput.telephone_normalise,
+        fn: orderInput.nom_complet,
+        ct: orderInput.commune,
+        st: orderInput.wilaya_nom,
+        country: "dz",
+        client_ip_address: clientIp,
+        client_user_agent: userAgent,
+      },
+      custom_data: {
+        value: orderInput.total_dzd,
+        currency: "DZD",
+        num_items: orderInput.quantite,
+        order_id: result.order_id,
+        content_name: "Porte feuille Classe",
+      },
+    }).catch(() => {});
+
     return NextResponse.json({
       order_id: result.order_id,
       flag_doublon: result.flag_doublon,
+      event_id,
     });
   } catch (error: any) {
     console.error("Unexpected error in /api/order:", error);

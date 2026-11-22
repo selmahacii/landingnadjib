@@ -3,6 +3,7 @@ import { normalizePhone } from "@/lib/phone";
 import { safeStorage } from "@/lib/safeStorage";
 import { getOrCreateSessionId, captureAttribution } from "@/lib/session";
 import { calculateTotal } from "@/lib/pricing";
+import { trackPixelEvent } from "@/lib/meta/pixel";
 import type { Offer } from "@/lib/sheets/offers";
 import type { Variant } from "@/lib/sheets/variants";
 import type { DeliverySelection } from "./WilayaCommuneSelect";
@@ -33,6 +34,25 @@ export const OrderForm: React.FC<OrderFormProps> = ({
   const lastFieldRef = useRef<string>("");
   const abandonedSentRef = useRef<boolean>(false);
   const orderSubmittedRef = useRef<boolean>(false);
+
+  const handleFirstFocus = () => {
+    const sessionId = getOrCreateSessionId();
+    if (!safeStorage.getItem(`cod_ic_${sessionId}`)) {
+      safeStorage.setItem(`cod_ic_${sessionId}`, "1");
+      const eventId = `ic_${Date.now()}_${Math.random().toString(36).substring(2, 8)}`;
+      trackPixelEvent("InitiateCheckout", { value: offer.prix_dzd, currency: "DZD" }, eventId);
+      fetch("/api/meta-capi", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          event_name: "InitiateCheckout",
+          event_id: eventId,
+          event_source_url: typeof window !== "undefined" ? window.location.href : "",
+          custom_data: { value: offer.prix_dzd, currency: "DZD" },
+        }),
+      }).catch(() => {});
+    }
+  };
 
   // Send Abandoned Cart Beacon helper
   const sendAbandonedBeacon = (phoneNorm: string) => {
@@ -189,6 +209,12 @@ export const OrderForm: React.FC<OrderFormProps> = ({
       }
 
       orderSubmittedRef.current = true;
+
+      // Deduplicated browser Purchase pixel
+      if (data.event_id) {
+        trackPixelEvent("Purchase", { value: total, currency: "DZD" }, data.event_id);
+      }
+
       onSubmitSuccess(data.order_id, {
         order_id: data.order_id,
         nom: nomComplet,
@@ -241,6 +267,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           data-testid="name-input"
           type="text"
           value={nomComplet}
+          onFocus={handleFirstFocus}
           onChange={(e) => {
             setNomComplet(e.target.value);
             lastFieldRef.current = "nom_complet";
@@ -267,6 +294,7 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           type="tel"
           dir="ltr"
           value={telephone}
+          onFocus={handleFirstFocus}
           onChange={(e) => {
             setTelephone(e.target.value);
             lastFieldRef.current = "telephone";

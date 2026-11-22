@@ -10,6 +10,8 @@ const tajawal = Tajawal({
   variable: "--font-tajawal",
 });
 
+import { MetaPixel } from "@/components/meta/MetaPixel";
+
 export const metadata: Metadata = {
   title: "Porte feuille Classe",
   description: "Porte feuille Classe - التوصيل متوفر لـ 58 ولاية والدفع عند الاستلام",
@@ -20,9 +22,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pixelId = process.env.META_PIXEL_ID;
+
   return (
     <html lang="ar" dir="rtl" className={tajawal.variable}>
       <body className="font-tajawal antialiased min-h-screen bg-neutral-50 text-neutral-900">
+        <MetaPixel pixelId={pixelId} />
         {children}
       </body>
     </html>
