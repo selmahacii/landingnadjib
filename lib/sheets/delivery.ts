@@ -37,7 +37,7 @@ export function getDefaultTariffs(): DeliveryTariff[] {
   });
 }
 
-export async function getDeliveryTariffs(): Promise<DeliveryTariff[]> {
+export async function getDeliveryTariffs(includeInactive = false): Promise<DeliveryTariff[]> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
     return getDefaultTariffs();
@@ -50,7 +50,7 @@ export async function getDeliveryTariffs(): Promise<DeliveryTariff[]> {
     }
 
     const dataRows = rows.slice(1);
-    const tariffs: DeliveryTariff[] = [];
+    const tariffsMap = new Map<string, DeliveryTariff>();
 
     for (const row of dataRows) {
       if (!row || !row[0]) continue;
@@ -61,8 +61,8 @@ export async function getDeliveryTariffs(): Promise<DeliveryTariff[]> {
       const prix_stopdesk = parseFloat(String(row[3] || "0")) || 0;
       const actif = String(row[4] || "TRUE").trim().toUpperCase() === "TRUE";
 
-      if (actif) {
-        tariffs.push({
+      if (actif || includeInactive) {
+        tariffsMap.set(wilaya_code, {
           wilaya_code,
           wilaya_ar,
           prix_domicile,
@@ -72,7 +72,13 @@ export async function getDeliveryTariffs(): Promise<DeliveryTariff[]> {
       }
     }
 
-    return tariffs;
+    if (includeInactive) {
+      // Ensure all 58 wilayas are present in order
+      const defaults = getDefaultTariffs();
+      return defaults.map((def) => tariffsMap.get(def.wilaya_code) || def);
+    }
+
+    return Array.from(tariffsMap.values());
   } catch (error) {
     console.warn("Could not read delivery tariffs from Sheets, falling back to defaults:", error);
     return getDefaultTariffs();
