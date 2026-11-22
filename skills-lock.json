@@ -1,0 +1,34 @@
+{
+  "version": 2,
+  "skills": {
+    "clone-website": {
+      "source": "jcodesmore/ai-website-cloner-template",
+      "ref": "master",
+      "commit": "5426e0e2ec35dbc173a7a18f47a3dfe2a765313e",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/clone-website/SKILL.md",
+      "computedHash": "431913d2eba334d958f5f31c156de325e596bf60b4a40093beab97f01e34d47a"
+    },
+    "conversion-tracking": {
+      "source": "coreyhaines31/marketingskills",
+      "commit": "5b2b400eec1e7e1cec76245a715d0b0d4fd2a9c1",
+      "sourceType": "github",
+      "skillPath": "skills/conversion-tracking/SKILL.md",
+      "computedHash": "6847a545bf3ca478cf61c822652f1a940103a8bed899960e1d6303bf7f6def6e"
+    },
+    "cro": {
+      "source": "coreyhaines31/marketingskills",
+      "commit": "5b2b400eec1e7e1cec76245a715d0b0d4fd2a9c1",
+      "sourceType": "github",
+      "skillPath": "skills/cro/SKILL.md",
+      "computedHash": "cc8040529654755144b4dedce5f075ead4667969978257596a05fa4282a5b42f"
+    },
+    "sheets-cli": {
+      "source": "gmickel/sheets-cli",
+      "commit": "1c0e3dc0aa7d158ca06ba45f412cb32a372e657b",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "763e42bfbe9c4b96588a496a9bbc6fd76ef9642d54e96c42d2932812b7d92db5"
+    }
+  }
+}
