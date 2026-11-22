@@ -15,6 +15,80 @@ interface UploadedMediaResult {
   variantId?: string;
 }
 
+/**
+ * Pre-compress large images on the client (Canvas -> JPEG < 2MB)
+ * to avoid Vercel 413 "Function Payload Too Large" error (4.5MB limit).
+ */
+async function precompressImageOnClient(file: File): Promise<File> {
+  // If file is already <= 1.5MB, no need for client-side pre-compression
+  if (file.size <= 1.5 * 1024 * 1024) {
+    return file;
+  }
+
+  return new Promise((resolve) => {
+    const objectUrl = URL.createObjectURL(file);
+    const img = new window.Image();
+
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      try {
+        const MAX_DIM = 2000;
+        let { width, height } = img;
+
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          return resolve(file);
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) {
+              return resolve(file);
+            }
+            const precompressedFile = new File(
+              [blob],
+              file.name.replace(/\.[^/.]+$/, ".jpg"),
+              {
+                type: "image/jpeg",
+                lastModified: Date.now(),
+              }
+            );
+            resolve(precompressedFile);
+          },
+          "image/jpeg",
+          0.82
+        );
+      } catch (err) {
+        console.warn("Client precompression failed, falling back to original file:", err);
+        resolve(file);
+      }
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve(file);
+    };
+
+    img.src = objectUrl;
+  });
+}
+
 export const MediaUploader: React.FC<MediaUploaderProps> = ({ initialVariants }) => {
   const [variants, setVariants] = useState<Variant[]>(initialVariants);
   const [file, setFile] = useState<File | null>(null);
@@ -22,6 +96,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ initialVariants })
   const [kind, setKind] = useState<"gallery" | "thumb">("gallery");
   const [selectedVariantId, setSelectedVariantId] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [lastUpload, setLastUpload] = useState<UploadedMediaResult | null>(null);
 
@@ -53,8 +128,17 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ initialVariants })
     setError(null);
 
     try {
+      let fileToUpload = file;
+
+      if (file.size > 1.5 * 1024 * 1024) {
+        setLoadingMessage("جاري ضغط الصورة محلياً في المتصفح لتفادي حد الحجم...");
+        fileToUpload = await precompressImageOnClient(file);
+      }
+
+      setLoadingMessage("جاري رفع الصورة والتحويل النهائي بصيغة WebP...");
+
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", fileToUpload);
       formData.append("kind", kind);
       if (selectedVariantId) {
         formData.append("variant_id", selectedVariantId);
@@ -98,6 +182,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ initialVariants })
       setError(err.message || "حدث خطأ غير متوقع أثناء الرفع");
     } finally {
       setLoading(false);
+      setLoadingMessage("");
     }
   };
 
@@ -149,7 +234,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ initialVariants })
                     اضغط لاختيار صورة من جهازك
                   </span>
                   <p className="text-xs text-gray-500 mt-1">
-                    {file ? `الملف المختار: ${file.name} (${formatBytes(file.size)})` : "يدعم أحجام حتى 10 ميغابايت"}
+                    {file ? `الملف المختار: ${file.name} (${formatBytes(file.size)})` : "يدعم أحجام حتى 15 ميغابايت (مع ضغط مسبق تلقائي)"}
                   </p>
                 </label>
               </div>
@@ -194,7 +279,7 @@ export const MediaUploader: React.FC<MediaUploaderProps> = ({ initialVariants })
                 disabled={loading || !file}
                 className="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-2.5 px-4 rounded-lg shadow transition disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer mt-4"
               >
-                {loading ? "جاري الضغط والرفع..." : "رفع وتحسين الصورة"}
+                {loading ? (loadingMessage || "جاري المعالجة والرفع...") : "رفع وتحسين الصورة"}
               </button>
             </div>
           </div>

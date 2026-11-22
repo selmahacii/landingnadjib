@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Tajawal } from "next/font/google";
 import "./globals.css";
 
@@ -11,6 +11,12 @@ const tajawal = Tajawal({
 });
 
 import { MetaPixel } from "@/components/meta/MetaPixel";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: "Porte feuille Classe",
@@ -26,7 +32,10 @@ export default function RootLayout({
 
   return (
     <html lang="ar" dir="rtl" className={tajawal.variable}>
-      <body className="font-tajawal antialiased min-h-screen bg-neutral-50 text-neutral-900">
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+      </head>
+      <body className="font-tajawal antialiased min-h-screen bg-neutral-50 text-neutral-900 overflow-x-hidden">
         <MetaPixel pixelId={pixelId} />
         {children}
       </body>
