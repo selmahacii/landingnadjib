@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Offer } from "@/lib/sheets/offers";
 import type { Variant } from "@/lib/sheets/variants";
 import type { DeliveryTariff } from "@/lib/sheets/delivery";
@@ -9,6 +10,8 @@ import { VariantPicker } from "./VariantPicker";
 import { OfferPicker } from "./OfferPicker";
 import { BenefitsSection } from "./BenefitsSection";
 import { WilayaCommuneSelect, type DeliverySelection } from "./WilayaCommuneSelect";
+import { OrderForm } from "./OrderForm";
+import { StickyCTA } from "./StickyCTA";
 import { calculateTotal } from "@/lib/pricing";
 
 interface LandingClientProps {
@@ -22,6 +25,8 @@ export const LandingClient: React.FC<LandingClientProps> = ({
   variants,
   tariffs,
 }) => {
+  const router = useRouter();
+
   const defaultOffer = offers.find((o) => o.par_defaut) || offers[0];
   const [selectedOfferId, setSelectedOfferId] = useState<string>(
     defaultOffer ? defaultOffer.offer_id : ""
@@ -47,8 +52,22 @@ export const LandingClient: React.FC<LandingClientProps> = ({
 
   const activeImage = selectedVariant?.image_url;
 
+  const handleSubmitSuccess = (order_id: string, summary: any) => {
+    const params = new URLSearchParams({
+      order_id,
+      nom: summary.nom || "",
+      offre: summary.offre || "",
+      variante: summary.variante || "",
+      quantite: String(summary.quantite || 1),
+      wilaya: summary.wilaya || "",
+      commune: summary.commune || "",
+      total: String(summary.total || total),
+    });
+    router.push(`/thank-you?${params.toString()}`);
+  };
+
   return (
-    <div className="min-h-screen bg-neutral-50 pb-20">
+    <div className="min-h-screen bg-neutral-50 pb-24">
       {/* Top Urgency / Reassurance Announcement Bar */}
       <header className="bg-neutral-900 text-amber-400 text-center py-2.5 px-4 text-xs sm:text-sm font-bold tracking-wide shadow-sm">
         <span>🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة</span>
@@ -88,7 +107,7 @@ export const LandingClient: React.FC<LandingClientProps> = ({
           onSelect={(id) => setSelectedOfferId(id)}
         />
 
-        {/* Order Form Container with Wilaya/Commune and Live Total */}
+        {/* Order Form Container with Wilaya/Commune, Pricing Breakdown & OrderForm */}
         <div id="order-form-section" className="bg-white rounded-2xl p-6 border-2 border-amber-600/70 shadow-lg space-y-5">
           <div className="border-b border-neutral-100 pb-3">
             <h3 className="text-xl font-extrabold text-neutral-900">
@@ -132,11 +151,22 @@ export const LandingClient: React.FC<LandingClientProps> = ({
               </span>
             </div>
           </div>
+
+          {/* Actual Order Form */}
+          <OrderForm
+            offer={selectedOffer}
+            variant={selectedVariant}
+            delivery={deliverySelection}
+            onSubmitSuccess={handleSubmitSuccess}
+          />
         </div>
 
         {/* Benefits & Features Grid */}
         <BenefitsSection />
       </main>
+
+      {/* Sticky CTA for Mobile */}
+      <StickyCTA targetId="order-form-section" price={total} />
     </div>
   );
 };
