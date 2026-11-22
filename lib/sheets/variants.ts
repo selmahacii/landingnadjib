@@ -59,16 +59,20 @@ export const DEFAULT_VARIANTS: Variant[] = [
   },
 ];
 
-export async function getVariants(): Promise<Variant[]> {
+export async function getVariants(includeInactive = false): Promise<Variant[]> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
-    return DEFAULT_VARIANTS.filter((v) => v.actif).sort((a, b) => a.ordre - b.ordre);
+    return (includeInactive ? DEFAULT_VARIANTS : DEFAULT_VARIANTS.filter((v) => v.actif))
+      .slice()
+      .sort((a, b) => a.ordre - b.ordre);
   }
 
   try {
     const rows = await readRange(sheetId, `${TAB_NAMES.VARIANTES}!A:G`);
     if (!rows || rows.length <= 1) {
-      return DEFAULT_VARIANTS.filter((v) => v.actif).sort((a, b) => a.ordre - b.ordre);
+      return (includeInactive ? DEFAULT_VARIANTS : DEFAULT_VARIANTS.filter((v) => v.actif))
+        .slice()
+        .sort((a, b) => a.ordre - b.ordre);
     }
 
     const dataRows = rows.slice(1);
@@ -85,7 +89,7 @@ export async function getVariants(): Promise<Variant[]> {
       const ordre = parseInt(String(row[5] || "0"), 10) || 0;
       const actif = String(row[6] || "TRUE").trim().toUpperCase() === "TRUE";
 
-      if (actif) {
+      if (actif || includeInactive) {
         variants.push({
           variant_id,
           nom_variante_ar,
@@ -101,7 +105,9 @@ export async function getVariants(): Promise<Variant[]> {
     return variants.sort((a, b) => a.ordre - b.ordre);
   } catch (error) {
     console.warn("Could not read variants from Sheets, falling back to defaults:", error);
-    return DEFAULT_VARIANTS.filter((v) => v.actif).sort((a, b) => a.ordre - b.ordre);
+    return (includeInactive ? DEFAULT_VARIANTS : DEFAULT_VARIANTS.filter((v) => v.actif))
+      .slice()
+      .sort((a, b) => a.ordre - b.ordre);
   }
 }
 
