@@ -41,16 +41,20 @@ export const DEFAULT_OFFERS: Offer[] = [
   },
 ];
 
-export async function getOffers(): Promise<Offer[]> {
+export async function getOffers(includeInactive = false): Promise<Offer[]> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
-    return DEFAULT_OFFERS.filter((o) => o.actif).sort((a, b) => a.ordre - b.ordre);
+    return (includeInactive ? DEFAULT_OFFERS : DEFAULT_OFFERS.filter((o) => o.actif))
+      .slice()
+      .sort((a, b) => a.ordre - b.ordre);
   }
 
   try {
     const rows = await readRange(sheetId, `${TAB_NAMES.OFFRES}!A:J`);
     if (!rows || rows.length <= 1) {
-      return DEFAULT_OFFERS.filter((o) => o.actif).sort((a, b) => a.ordre - b.ordre);
+      return (includeInactive ? DEFAULT_OFFERS : DEFAULT_OFFERS.filter((o) => o.actif))
+        .slice()
+        .sort((a, b) => a.ordre - b.ordre);
     }
 
     const dataRows = rows.slice(1);
@@ -70,7 +74,7 @@ export async function getOffers(): Promise<Offer[]> {
       const ordre = parseInt(String(row[8] || "0"), 10) || 0;
       const actif = String(row[9] || "TRUE").trim().toUpperCase() === "TRUE";
 
-      if (actif) {
+      if (actif || includeInactive) {
         offers.push({
           offer_id,
           titre_ar,
@@ -89,7 +93,9 @@ export async function getOffers(): Promise<Offer[]> {
     return offers.sort((a, b) => a.ordre - b.ordre);
   } catch (error) {
     console.warn("Could not read offers from Sheets, falling back to default offers:", error);
-    return DEFAULT_OFFERS.filter((o) => o.actif).sort((a, b) => a.ordre - b.ordre);
+    return (includeInactive ? DEFAULT_OFFERS : DEFAULT_OFFERS.filter((o) => o.actif))
+      .slice()
+      .sort((a, b) => a.ordre - b.ordre);
   }
 }
 
