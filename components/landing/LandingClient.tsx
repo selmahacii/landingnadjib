@@ -152,22 +152,16 @@ export const LandingClient: React.FC<LandingClientProps> = ({
           {/* Column 2: Sticky column with Title, Price, Pickers and Order Form */}
           <div className="px-4 md:px-0 md:sticky md:top-6 space-y-6">
             {/* Product Title & Prominent Red Price */}
-            <div className="text-right space-y-2 pt-1 md:pt-0">
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-300 text-xs font-bold px-3 py-1 rounded-full font-cairo shadow-xs">
-                  <span>✨ منتج أصلي ومضمون 100%</span>
-                </span>
-              </div>
-
+            <div className="text-right space-y-1.5 pt-2 md:pt-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-neutral-900 tracking-tight font-heading leading-tight">
                 Porte feuille Classe
               </h1>
 
-              <p className="text-base sm:text-lg font-bold text-neutral-800 font-cairo leading-snug">
-                الأناقة والفخامة في التفاصيل — محفظة جلدية رجالية راقية
+              <p className="text-sm sm:text-base md:text-lg font-bold text-neutral-700 font-cairo leading-snug">
+                الأناقة والفخامة في التفاصيل ✨ محفظة جلدية رجالية راقية
               </p>
 
-              <div className="flex items-baseline gap-3 pt-0.5">
+              <div className="flex items-baseline gap-3 pt-1">
                 <span className="text-3xl sm:text-4xl font-black text-red-600 font-cairo tracking-tight">
                   {selectedOffer?.prix_dzd?.toLocaleString()} دج
                 </span>
@@ -177,10 +171,6 @@ export const LandingClient: React.FC<LandingClientProps> = ({
                   </span>
                 )}
               </div>
-
-              <p className="text-xs sm:text-sm text-neutral-500 font-tajawal leading-relaxed">
-                محفظة جلدية راقية للرجال بتصميم عملي وسعة ممتازة للبطاقات والنقود مع نظام سحب سريع.
-              </p>
             </div>
 
             {/* Variant Picker */}
