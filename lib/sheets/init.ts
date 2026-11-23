@@ -1,4 +1,6 @@
 import { getSheetsClient } from "./client";
+import { DEFAULT_VARIANTS } from "./variants";
+import { DEFAULT_OFFERS } from "./offers";
 
 export const TAB_NAMES = {
   COMMANDES: "Commandes_et_Abandons",
@@ -97,6 +99,7 @@ export const PARAMETRES_ROWS = [
   ["header_bg_color", "#171717"],
   ["header_text_color", "#fbbf24"],
   ["header_text_ar", "🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة"],
+  ["main_image_url", ""],
 ];
 
 export const STATUT_CONFIRMATION_VALUES = [
@@ -186,6 +189,35 @@ export async function ensureSheetsInitialized(sheetId: string): Promise<void> {
         valuesToInsert = DASHBOARD_KPI_ROWS;
       } else if (tab.title === TAB_NAMES.PARAMETRES) {
         valuesToInsert = PARAMETRES_ROWS;
+      } else if (tab.title === TAB_NAMES.VARIANTES) {
+        valuesToInsert = [
+          tab.headers as unknown as unknown[],
+          ...DEFAULT_VARIANTS.map((v) => [
+            v.variant_id,
+            v.nom_variante_ar,
+            v.supplement_prix_dzd,
+            v.image_url,
+            v.thumb_url,
+            v.ordre,
+            v.actif ? "TRUE" : "FALSE",
+          ]),
+        ];
+      } else if (tab.title === TAB_NAMES.OFFRES) {
+        valuesToInsert = [
+          tab.headers as unknown as unknown[],
+          ...DEFAULT_OFFERS.map((o) => [
+            o.offer_id,
+            o.titre_ar,
+            o.quantite,
+            o.prix_dzd,
+            o.prix_barre_dzd,
+            o.badge_ar,
+            o.livraison_gratuite ? "TRUE" : "FALSE",
+            o.par_defaut ? "TRUE" : "FALSE",
+            o.ordre,
+            o.actif ? "TRUE" : "FALSE",
+          ]),
+        ];
       } else {
         valuesToInsert = [tab.headers as unknown as unknown[]];
       }

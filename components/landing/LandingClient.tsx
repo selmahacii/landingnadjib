@@ -19,6 +19,7 @@ const FALLBACK_SETTINGS: SiteSettings = {
   header_bg_color: "#171717",
   header_text_color: "#fbbf24",
   header_text_ar: "🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة",
+  main_image_url: "",
 };
 
 interface LandingClientProps {
@@ -85,14 +86,20 @@ export const LandingClient: React.FC<LandingClientProps> = ({
     }).catch(() => {});
   }, []);
 
-  // Collect gallery images
-  const galleryImages = variants
+  // Collect gallery images: main image first (if set), followed by variant images
+  const variantImages = variants
     .filter((v) => v.image_url)
     .map((v) => v.image_url);
 
-  const activeImage = selectedVariant?.image_url;
-  const activeVariantIndex = variants.findIndex((v) => v.variant_id === selectedVariantId);
-  const safeVariantIndex = activeVariantIndex >= 0 ? activeVariantIndex : 0;
+  const mainImg = siteSettings?.main_image_url || "";
+  const galleryImages = [
+    ...(mainImg ? [mainImg] : []),
+    ...variantImages.filter((url) => url !== mainImg),
+  ];
+
+  const activeImage = selectedVariant?.image_url || mainImg || galleryImages[0] || "";
+  const activeImageIndex = galleryImages.indexOf(activeImage);
+  const safeGalleryIndex = activeImageIndex >= 0 ? activeImageIndex : 0;
 
   const handleSubmitSuccess = (order_id: string, summary: any) => {
     const params = new URLSearchParams({
@@ -129,10 +136,15 @@ export const LandingClient: React.FC<LandingClientProps> = ({
             <Gallery
               layout="grid"
               images={galleryImages.length > 0 ? galleryImages : activeImage ? [activeImage] : []}
-              activeIndex={safeVariantIndex}
+              activeIndex={safeGalleryIndex}
               onSelectImage={(idx) => {
-                const targetVariant = variants.filter((v) => v.image_url)[idx] || variants[idx];
-                if (targetVariant) setSelectedVariantId(targetVariant.variant_id);
+                const selectedUrl = galleryImages[idx];
+                if (selectedUrl) {
+                  const matchingVariant = variants.find((v) => v.image_url === selectedUrl);
+                  if (matchingVariant) {
+                    setSelectedVariantId(matchingVariant.variant_id);
+                  }
+                }
               }}
             />
           </div>

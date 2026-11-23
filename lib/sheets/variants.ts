@@ -122,26 +122,47 @@ export async function saveVariant(variant: Variant): Promise<void> {
 
   let foundRowIndex = -1;
   for (let i = 1; i < existingRows.length; i++) {
-    if (existingRows[i] && existingRows[i][0] === variant.variant_id) {
+    const rowId = String(existingRows[i]?.[0] || "").trim().toLowerCase();
+    if (rowId === variant.variant_id.trim().toLowerCase()) {
       foundRowIndex = i;
       break;
     }
   }
 
-  const rowValues = [
-    variant.variant_id,
-    variant.nom_variante_ar,
-    variant.supplement_prix_dzd,
-    variant.image_url,
-    variant.thumb_url,
-    variant.ordre,
-    variant.actif ? "TRUE" : "FALSE",
-  ];
-
   if (foundRowIndex > -1) {
     const sheetRowNum = foundRowIndex + 1;
+    const existingRow = existingRows[foundRowIndex] || [];
+    const rowValues = [
+      variant.variant_id,
+      variant.nom_variante_ar || String(existingRow[1] || ""),
+      variant.supplement_prix_dzd !== undefined ? variant.supplement_prix_dzd : (parseFloat(String(existingRow[2] || "0")) || 0),
+      variant.image_url !== undefined ? variant.image_url : String(existingRow[3] || ""),
+      variant.thumb_url !== undefined ? variant.thumb_url : String(existingRow[4] || ""),
+      variant.ordre !== undefined ? variant.ordre : (parseInt(String(existingRow[5] || "0"), 10) || 1),
+      variant.actif !== undefined ? (variant.actif ? "TRUE" : "FALSE") : String(existingRow[6] || "TRUE"),
+    ];
     await updateRange(sheetId, `${TAB_NAMES.VARIANTES}!A${sheetRowNum}:G${sheetRowNum}`, [rowValues]);
   } else {
+    if (existingRows.length === 0) {
+      await appendRow(sheetId, TAB_NAMES.VARIANTES, [
+        "variant_id",
+        "nom_variante_ar",
+        "supplement_prix_dzd",
+        "image_url",
+        "thumb_url",
+        "ordre",
+        "actif",
+      ]);
+    }
+    const rowValues = [
+      variant.variant_id,
+      variant.nom_variante_ar,
+      variant.supplement_prix_dzd ?? 0,
+      variant.image_url ?? "",
+      variant.thumb_url ?? "",
+      variant.ordre ?? 1,
+      variant.actif !== false ? "TRUE" : "FALSE",
+    ];
     await appendRow(sheetId, TAB_NAMES.VARIANTES, rowValues);
   }
 }

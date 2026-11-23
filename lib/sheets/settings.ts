@@ -5,12 +5,14 @@ export interface SiteSettings {
   header_bg_color: string;   // hex, ex: "#0f172a"
   header_text_color: string; // hex, ex: "#fbbf24"
   header_text_ar: string;    // texte arabe du bandeau
+  main_image_url?: string;   // URL de la photo principale du produit dans la galerie
 }
 
 export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   header_bg_color: "#171717",
   header_text_color: "#fbbf24",
   header_text_ar: "🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة",
+  main_image_url: "",
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {
@@ -39,6 +41,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       header_bg_color: settingsMap["header_bg_color"] || DEFAULT_SITE_SETTINGS.header_bg_color,
       header_text_color: settingsMap["header_text_color"] || DEFAULT_SITE_SETTINGS.header_text_color,
       header_text_ar: settingsMap["header_text_ar"] || DEFAULT_SITE_SETTINGS.header_text_ar,
+      main_image_url: settingsMap["main_image_url"] || "",
     };
   } catch (error) {
     console.warn("Could not read site settings from Sheets, falling back to defaults:", error);
@@ -63,9 +66,10 @@ export async function saveSiteSettings(settings: SiteSettings): Promise<void> {
   }
 
   const entries: [keyof SiteSettings, string][] = [
-    ["header_bg_color", settings.header_bg_color],
-    ["header_text_color", settings.header_text_color],
-    ["header_text_ar", settings.header_text_ar],
+    ["header_bg_color", settings.header_bg_color || DEFAULT_SITE_SETTINGS.header_bg_color],
+    ["header_text_color", settings.header_text_color || DEFAULT_SITE_SETTINGS.header_text_color],
+    ["header_text_ar", settings.header_text_ar || DEFAULT_SITE_SETTINGS.header_text_ar],
+    ["main_image_url", settings.main_image_url ?? ""],
   ];
 
   for (const [key, value] of entries) {
@@ -79,4 +83,12 @@ export async function saveSiteSettings(settings: SiteSettings): Promise<void> {
       keyMap.set(key, existingRows.length + 1);
     }
   }
+}
+
+export async function saveMainImageUrl(url: string): Promise<void> {
+  const current = await getSiteSettings();
+  await saveSiteSettings({
+    ...current,
+    main_image_url: url,
+  });
 }
