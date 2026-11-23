@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import type { Offer } from "@/lib/sheets/offers";
 import type { Variant } from "@/lib/sheets/variants";
 import type { DeliveryTariff } from "@/lib/sheets/delivery";
+import type { SiteSettings } from "@/lib/sheets/settings";
 import { Gallery } from "./Gallery";
 import { VariantPicker } from "./VariantPicker";
 import { OfferPicker } from "./OfferPicker";
@@ -14,16 +15,24 @@ import { StickyCTA } from "./StickyCTA";
 import { calculateTotal } from "@/lib/pricing";
 import { trackPixelEvent } from "@/lib/meta/pixel";
 
+const FALLBACK_SETTINGS: SiteSettings = {
+  header_bg_color: "#171717",
+  header_text_color: "#fbbf24",
+  header_text_ar: "🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة",
+};
+
 interface LandingClientProps {
   offers: Offer[];
   variants: Variant[];
   tariffs: DeliveryTariff[];
+  siteSettings?: SiteSettings;
 }
 
 export const LandingClient: React.FC<LandingClientProps> = ({
   offers,
   variants,
   tariffs,
+  siteSettings = FALLBACK_SETTINGS,
 }) => {
   const router = useRouter();
 
@@ -100,8 +109,14 @@ export const LandingClient: React.FC<LandingClientProps> = ({
   return (
     <div className="min-h-screen bg-neutral-50 pb-24">
       {/* Top Urgency / Reassurance Announcement Bar */}
-      <header className="bg-neutral-900 text-amber-400 text-center py-2.5 px-4 text-xs sm:text-sm font-bold tracking-wide shadow-sm">
-        <span>🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة</span>
+      <header
+        className="text-center py-2.5 px-4 text-xs sm:text-sm font-bold tracking-wide shadow-sm"
+        style={{
+          backgroundColor: siteSettings.header_bg_color,
+          color: siteSettings.header_text_color,
+        }}
+      >
+        <span>{siteSettings.header_text_ar}</span>
       </header>
 
       {/* Main Container */}

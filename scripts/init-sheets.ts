@@ -43,12 +43,13 @@ async function main() {
 
   try {
     await ensureSheetsInitialized(sheetId);
-    console.log("✅ Initialisation réussie ! Les 5 onglets sont prêts :");
+    console.log("✅ Initialisation réussie ! Les 6 onglets sont prêts :");
     console.log("   1. Commandes_et_Abandons (34 colonnes, validations et couleurs)");
     console.log("   2. Tarifs_Livraison (58 wilayas)");
     console.log("   3. Offres_Packs (Packs 1 et 2 pièces)");
     console.log("   4. Variantes_Produit (5 coloris)");
     console.log("   5. Dashboard_KPI (Formules dynamiques de performance)");
+    console.log("   6. Parametres_Site (Couleurs et texte du bandeau)");
   } catch (error: any) {
     console.error("❌ Échec de l'initialisation du Google Sheet :", error?.message || error);
     process.exit(1);
