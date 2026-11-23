@@ -51,6 +51,12 @@ export default function AdminLayout({
                 >
                   الصور والوسائط
                 </Link>
+                <Link
+                  href="/admin/settings"
+                  className="text-gray-700 hover:text-amber-600 px-3 py-2 rounded-md hover:bg-gray-50 transition"
+                >
+                  إعدادات المتجر والشريط
+                </Link>
               </nav>
             </div>
             <div className="flex items-center gap-4">
