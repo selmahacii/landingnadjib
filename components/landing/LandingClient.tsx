@@ -7,10 +7,9 @@ import type { Variant } from "@/lib/sheets/variants";
 import type { DeliveryTariff } from "@/lib/sheets/delivery";
 import type { SiteSettings } from "@/lib/sheets/settings";
 import { Gallery } from "./Gallery";
-import { VariantPicker } from "./VariantPicker";
 import { OfferPicker } from "./OfferPicker";
-import { WilayaCommuneSelect, type DeliverySelection } from "./WilayaCommuneSelect";
-import { OrderForm } from "./OrderForm";
+import { type DeliverySelection } from "./WilayaCommuneSelect";
+import { OrderForm, sortVariantsByColorOrder } from "./OrderForm";
 import { StickyCTA } from "./StickyCTA";
 import { calculateTotal } from "@/lib/pricing";
 import { trackPixelEvent } from "@/lib/meta/pixel";
@@ -36,21 +35,60 @@ export const LandingClient: React.FC<LandingClientProps> = ({
   siteSettings = FALLBACK_SETTINGS,
 }) => {
   const router = useRouter();
+  const sortedVariants = sortVariantsByColorOrder(variants);
 
   const defaultOffer = offers.find((o) => o.par_defaut) || offers[0];
   const [selectedOfferId, setSelectedOfferId] = useState<string>(
     defaultOffer ? defaultOffer.offer_id : ""
   );
 
-  const defaultVariant = variants[0];
-  const [selectedVariantId, setSelectedVariantId] = useState<string>(
-    defaultVariant ? defaultVariant.variant_id : ""
+  const selectedOffer = offers.find((o) => o.offer_id === selectedOfferId) || offers[0];
+  const offerQty = Math.max(1, selectedOffer?.quantite || 1);
+
+  // Manage multi-variant selections based on offer quantity
+  const [selectedVariantIds, setSelectedVariantIds] = useState<string[]>(() => {
+    const list: string[] = [];
+    for (let i = 0; i < offerQty; i++) {
+      list.push(sortedVariants[i]?.variant_id || sortedVariants[0]?.variant_id || "");
+    }
+    return list;
+  });
+
+  // Track the most recently clicked variant to sync gallery image
+  const [galleryFocusVariantId, setGalleryFocusVariantId] = useState<string>(
+    selectedVariantIds[0] || sortedVariants[0]?.variant_id || ""
   );
 
   const [deliverySelection, setDeliverySelection] = useState<DeliverySelection | null>(null);
 
-  const selectedOffer = offers.find((o) => o.offer_id === selectedOfferId) || offers[0];
-  const selectedVariant = variants.find((v) => v.variant_id === selectedVariantId) || variants[0];
+  // When offer changes: if switching from 1 to 2, add second variant; if switching to 1, slice
+  const handleSelectOffer = (offerId: string) => {
+    setSelectedOfferId(offerId);
+    const targetOffer = offers.find((o) => o.offer_id === offerId);
+    const targetQty = Math.max(1, targetOffer?.quantite || 1);
+
+    setSelectedVariantIds((prev) => {
+      const next = [...prev];
+      while (next.length < targetQty) {
+        const nextIdx = next.length;
+        const fallback =
+          sortedVariants[nextIdx]?.variant_id ||
+          sortedVariants[0]?.variant_id ||
+          "";
+        next.push(fallback);
+      }
+      return next.slice(0, targetQty);
+    });
+  };
+
+  const handleSelectVariantAt = (index: number, variantId: string) => {
+    setSelectedVariantIds((prev) => {
+      const next = [...prev];
+      next[index] = variantId;
+      return next;
+    });
+    setGalleryFocusVariantId(variantId);
+  };
 
   const deliveryPrice = deliverySelection?.wilaya_code ? deliverySelection.prix_livraison : 0;
   const total = calculateTotal({ offer: selectedOffer, deliveryPrice });
@@ -97,7 +135,12 @@ export const LandingClient: React.FC<LandingClientProps> = ({
     ...variantImages.filter((url) => url !== mainImg),
   ];
 
-  const activeImage = selectedVariant?.image_url || mainImg || galleryImages[0] || "";
+  const focusVariant =
+    variants.find((v) => v.variant_id === galleryFocusVariantId) ||
+    variants.find((v) => v.variant_id === selectedVariantIds[0]) ||
+    variants[0];
+
+  const activeImage = focusVariant?.image_url || mainImg || galleryImages[0] || "";
   const activeImageIndex = galleryImages.indexOf(activeImage);
   const safeGalleryIndex = activeImageIndex >= 0 ? activeImageIndex : 0;
 
@@ -136,21 +179,23 @@ export const LandingClient: React.FC<LandingClientProps> = ({
             <Gallery
               layout="grid"
               variants={variants}
-              selectedVariantId={selectedVariantId}
+              selectedVariantId={galleryFocusVariantId}
               onSelectVariant={(variantId) => {
-                setSelectedVariantId(variantId);
+                handleSelectVariantAt(0, variantId);
               }}
               images={galleryImages.length > 0 ? galleryImages : activeImage ? [activeImage] : []}
               activeIndex={safeGalleryIndex}
               onSelectImage={(idx) => {
                 const target = variants[idx];
-                if (target) setSelectedVariantId(target.variant_id);
+                if (target) {
+                  handleSelectVariantAt(0, target.variant_id);
+                }
               }}
             />
           </div>
 
-          {/* Column 2: Sticky column with Title, Price, Pickers and Order Form */}
-          <div className="px-4 md:px-0 md:sticky md:top-6 space-y-6">
+          {/* Column 2: Sticky column with Title, Price, Offer Picker and Chicoutfit-style Order Form */}
+          <div className="px-4 md:px-0 md:sticky md:top-6 space-y-5">
             {/* Product Title & Prominent Red Price */}
             <div className="text-right space-y-1.5 pt-2 md:pt-0">
               <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-neutral-900 tracking-tight font-heading leading-tight">
@@ -173,70 +218,26 @@ export const LandingClient: React.FC<LandingClientProps> = ({
               </div>
             </div>
 
-            {/* Variant Picker */}
-            <VariantPicker
-              variants={variants}
-              selected={selectedVariantId}
-              onSelect={(id) => setSelectedVariantId(id)}
-            />
-
             {/* Offer Picker */}
             <OfferPicker
               offers={offers}
               selected={selectedOfferId}
-              onSelect={(id) => setSelectedOfferId(id)}
+              onSelect={handleSelectOffer}
             />
 
-            {/* Order Form Container with Wilaya/Commune, Pricing Breakdown & OrderForm */}
-            <div id="order-form-section" className="bg-white rounded-2xl p-6 border-2 border-amber-600/70 shadow-lg space-y-5">
-              <div className="border-b border-neutral-100 pb-3">
-                <h3 className="text-xl font-extrabold text-neutral-900">
-                  استمارة الطلب (الدفع عند الاستلام)
-                </h3>
-                <p className="text-xs text-neutral-500 mt-1">
-                  املأ معلوماتك وسنتصل بك لتأكيد طلبك قبل الشحن
-                </p>
-              </div>
-
-              {/* Wilaya & Commune Selection */}
-              <WilayaCommuneSelect
-                tariffs={tariffs}
-                onChange={(sel) => setDeliverySelection(sel)}
-              />
-
-              {/* Real-time Order Summary / Pricing Breakdown */}
-              <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-200/80 space-y-2.5">
-                <div className="flex justify-between items-center text-sm text-neutral-700">
-                  <span>سعر العرض ({selectedOffer?.titre_ar}):</span>
-                  <span className="font-bold text-red-600">{selectedOffer?.prix_dzd} دج</span>
-                </div>
-
-                <div className="flex justify-between items-center text-sm text-neutral-700">
-                  <span>سعر التوصيل:</span>
-                  <span className="font-bold text-neutral-900">
-                    {selectedOffer?.livraison_gratuite ? (
-                      <span className="text-emerald-600 font-extrabold">0 دج - مجاني</span>
-                    ) : deliverySelection?.wilaya_code ? (
-                      `${deliveryPrice} دج`
-                    ) : (
-                      <span className="text-neutral-400 font-normal">اختر الولاية لحساب التوصيل</span>
-                    )}
-                  </span>
-                </div>
-
-                <div className="border-t border-amber-200/60 pt-2.5 flex justify-between items-center">
-                  <span className="font-extrabold text-neutral-900 text-base">المجموع الكلي:</span>
-                  <span className="text-xl font-black text-amber-700">
-                    {total} دج
-                  </span>
-                </div>
-              </div>
-
-              {/* Actual Order Form */}
+            {/* Order Form Card Container (Paiement à la livraison) */}
+            <div
+              id="order-form-section"
+              className="bg-white rounded-2xl p-4 sm:p-6 border border-neutral-200/90 shadow-sm"
+            >
               <OrderForm
                 offer={selectedOffer}
-                variant={selectedVariant}
+                variants={variants}
+                selectedVariantIds={selectedVariantIds}
+                onSelectVariantAt={handleSelectVariantAt}
                 delivery={deliverySelection}
+                tariffs={tariffs}
+                onDeliveryChange={setDeliverySelection}
                 onSubmitSuccess={handleSubmitSuccess}
               />
             </div>
