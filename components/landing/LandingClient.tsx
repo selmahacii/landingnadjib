@@ -91,6 +91,8 @@ export const LandingClient: React.FC<LandingClientProps> = ({
     .map((v) => v.image_url);
 
   const activeImage = selectedVariant?.image_url;
+  const activeVariantIndex = variants.findIndex((v) => v.variant_id === selectedVariantId);
+  const safeVariantIndex = activeVariantIndex >= 0 ? activeVariantIndex : 0;
 
   const handleSubmitSuccess = (order_id: string, summary: any) => {
     const params = new URLSearchParams({
@@ -120,91 +122,107 @@ export const LandingClient: React.FC<LandingClientProps> = ({
       </header>
 
       {/* Main Container */}
-      <main className="max-w-xl mx-auto px-4 py-5 space-y-6">
-        {/* Product Title & Short Tagline */}
-        <div className="text-center space-y-1">
-          <span className="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">
-            منتج أصلي 100%
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
-            Porte feuille Classe
-          </h1>
-          <p className="text-sm text-neutral-600">
-            محفظة جلدية راقية للرجال - تصميم عملي وسعة ممتازة للبطاقات والنقود
-          </p>
-        </div>
-
-        {/* Gallery */}
-        <Gallery
-          images={activeImage ? [activeImage, ...galleryImages.filter((img) => img !== activeImage)] : galleryImages}
-        />
-
-        {/* Variant Picker */}
-        <VariantPicker
-          variants={variants}
-          selected={selectedVariantId}
-          onSelect={(id) => setSelectedVariantId(id)}
-        />
-
-        {/* Offer Picker */}
-        <OfferPicker
-          offers={offers}
-          selected={selectedOfferId}
-          onSelect={(id) => setSelectedOfferId(id)}
-        />
-
-        {/* Order Form Container with Wilaya/Commune, Pricing Breakdown & OrderForm */}
-        <div id="order-form-section" className="bg-white rounded-2xl p-6 border-2 border-amber-600/70 shadow-lg space-y-5">
-          <div className="border-b border-neutral-100 pb-3">
-            <h3 className="text-xl font-extrabold text-neutral-900">
-              استمارة الطلب (الدفع عند الاستلام)
-            </h3>
-            <p className="text-xs text-neutral-500 mt-1">
-              املأ معلوماتك وسنتصل بك لتأكيد طلبك قبل الشحن
-            </p>
+      <main className="max-w-xl md:max-w-5xl mx-auto px-4 py-5">
+        <div className="md:grid md:grid-cols-2 md:gap-8 md:items-start space-y-6 md:space-y-0">
+          {/* Column 1: Gallery */}
+          <div className="w-full">
+            <Gallery
+              layout="grid"
+              images={galleryImages.length > 0 ? galleryImages : activeImage ? [activeImage] : []}
+              activeIndex={safeVariantIndex}
+              onSelectImage={(idx) => {
+                const targetVariant = variants.filter((v) => v.image_url)[idx] || variants[idx];
+                if (targetVariant) setSelectedVariantId(targetVariant.variant_id);
+              }}
+            />
           </div>
 
-          {/* Wilaya & Commune Selection */}
-          <WilayaCommuneSelect
-            tariffs={tariffs}
-            onChange={(sel) => setDeliverySelection(sel)}
-          />
-
-          {/* Real-time Order Summary / Pricing Breakdown */}
-          <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-200/80 space-y-2.5">
-            <div className="flex justify-between items-center text-sm text-neutral-700">
-              <span>سعر العرض ({selectedOffer?.titre_ar}):</span>
-              <span className="font-bold text-neutral-900">{selectedOffer?.prix_dzd} دج</span>
+          {/* Column 2: Sticky column with Title, Price, Pickers and Order Form */}
+          <div className="md:sticky md:top-6 space-y-6">
+            {/* Product Title & Prominent Red Price */}
+            <div className="text-center md:text-right space-y-1">
+              <span className="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">
+                منتج أصلي 100%
+              </span>
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+                Porte feuille Classe
+              </h1>
+              <p className="text-2xl font-extrabold text-red-600">
+                {selectedOffer?.prix_dzd} دج
+              </p>
+              <p className="text-sm text-neutral-600">
+                محفظة جلدية راقية للرجال - تصميم عملي وسعة ممتازة للبطاقات والنقود
+              </p>
             </div>
 
-            <div className="flex justify-between items-center text-sm text-neutral-700">
-              <span>سعر التوصيل:</span>
-              <span className="font-bold text-neutral-900">
-                {selectedOffer?.livraison_gratuite ? (
-                  <span className="text-emerald-600 font-extrabold">0 دج - مجاني</span>
-                ) : deliverySelection?.wilaya_code ? (
-                  `${deliveryPrice} دج`
-                ) : (
-                  <span className="text-neutral-400 font-normal">اختر الولاية لحساب التوصيل</span>
-                )}
-              </span>
-            </div>
+            {/* Variant Picker */}
+            <VariantPicker
+              variants={variants}
+              selected={selectedVariantId}
+              onSelect={(id) => setSelectedVariantId(id)}
+            />
 
-            <div className="border-t border-amber-200/60 pt-2.5 flex justify-between items-center">
-              <span className="font-extrabold text-neutral-900 text-base">المجموع الكلي:</span>
-              <span className="text-xl font-black text-amber-700">
-                {total} دج
-              </span>
+            {/* Offer Picker */}
+            <OfferPicker
+              offers={offers}
+              selected={selectedOfferId}
+              onSelect={(id) => setSelectedOfferId(id)}
+            />
+
+            {/* Order Form Container with Wilaya/Commune, Pricing Breakdown & OrderForm */}
+            <div id="order-form-section" className="bg-white rounded-2xl p-6 border-2 border-amber-600/70 shadow-lg space-y-5">
+              <div className="border-b border-neutral-100 pb-3">
+                <h3 className="text-xl font-extrabold text-neutral-900">
+                  استمارة الطلب (الدفع عند الاستلام)
+                </h3>
+                <p className="text-xs text-neutral-500 mt-1">
+                  املأ معلوماتك وسنتصل بك لتأكيد طلبك قبل الشحن
+                </p>
+              </div>
+
+              {/* Wilaya & Commune Selection */}
+              <WilayaCommuneSelect
+                tariffs={tariffs}
+                onChange={(sel) => setDeliverySelection(sel)}
+              />
+
+              {/* Real-time Order Summary / Pricing Breakdown */}
+              <div className="bg-amber-50/50 rounded-xl p-4 border border-amber-200/80 space-y-2.5">
+                <div className="flex justify-between items-center text-sm text-neutral-700">
+                  <span>سعر العرض ({selectedOffer?.titre_ar}):</span>
+                  <span className="font-bold text-red-600">{selectedOffer?.prix_dzd} دج</span>
+                </div>
+
+                <div className="flex justify-between items-center text-sm text-neutral-700">
+                  <span>سعر التوصيل:</span>
+                  <span className="font-bold text-neutral-900">
+                    {selectedOffer?.livraison_gratuite ? (
+                      <span className="text-emerald-600 font-extrabold">0 دج - مجاني</span>
+                    ) : deliverySelection?.wilaya_code ? (
+                      `${deliveryPrice} دج`
+                    ) : (
+                      <span className="text-neutral-400 font-normal">اختر الولاية لحساب التوصيل</span>
+                    )}
+                  </span>
+                </div>
+
+                <div className="border-t border-amber-200/60 pt-2.5 flex justify-between items-center">
+                  <span className="font-extrabold text-neutral-900 text-base">المجموع الكلي:</span>
+                  <span className="text-xl font-black text-amber-700">
+                    {total} دج
+                  </span>
+                </div>
+              </div>
+
+              {/* Actual Order Form */}
+              <OrderForm
+                offer={selectedOffer}
+                variant={selectedVariant}
+                delivery={deliverySelection}
+                onSubmitSuccess={handleSubmitSuccess}
+              />
             </div>
           </div>
-
-          {/* Actual Order Form */}
-          <OrderForm
-            offer={selectedOffer}
-            variant={selectedVariant}
-            delivery={deliverySelection}
-            onSubmitSuccess={handleSubmitSuccess}
-          />
         </div>
       </main>
 
