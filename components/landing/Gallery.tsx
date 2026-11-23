@@ -179,10 +179,11 @@ export const Gallery: React.FC<GalleryProps> = ({
 
   return (
     <div className="w-full relative group" dir="rtl">
-      {/* Full-Width Swipe Carousel Track with 0 Border on Mobile */}
+      {/* Full-Width Swipe Carousel Track with 0 Border on Mobile & Zero Scrollbar */}
       <div
         ref={swipeContainerRef}
         onScroll={handleScroll}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         className="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar touch-pan-x rounded-none md:rounded-2xl bg-[#ebebeb] shadow-none"
       >
         {variants.map((v, idx) => {
@@ -238,27 +239,6 @@ export const Gallery: React.FC<GalleryProps> = ({
         </>
       )}
 
-      {/* Clean Minimalist Pagination Dots */}
-      {variants.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 py-3">
-          {variants.map((v, idx) => {
-            const isSelected = v.variant_id === activeVariantId;
-            return (
-              <button
-                key={v.variant_id}
-                type="button"
-                onClick={() => handleSelectVariant(v.variant_id, idx)}
-                aria-label={`انتقال إلى ${v.nom_variante_ar}`}
-                className={`transition-all duration-300 rounded-full ${
-                  isSelected
-                    ? "w-5 h-1.5 bg-neutral-900"
-                    : "w-1.5 h-1.5 bg-neutral-300 hover:bg-neutral-400"
-                }`}
-              />
-            );
-          })}
-        </div>
-      )}
     </div>
   );
 };
