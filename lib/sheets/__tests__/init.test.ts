@@ -37,6 +37,7 @@ describe("ensureSheetsInitialized", () => {
           { properties: { sheetId: 2, title: TAB_NAMES.TARIFS } },
           { properties: { sheetId: 3, title: TAB_NAMES.OFFRES } },
           { properties: { sheetId: 4, title: TAB_NAMES.VARIANTES } },
+          { properties: { sheetId: 5, title: TAB_NAMES.DASHBOARD } },
         ],
       },
     });

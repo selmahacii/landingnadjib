@@ -42,7 +42,7 @@ Toutes les variables d'environnement suivantes doivent être définies sur Verce
    - Ajoutez l'adresse email du compte de service (`client_email`) avec les droits **Éditeur (Editor)**.
    - Notez l'ID du Google Sheet dans l'URL.
 
-4. **Initialiser automatiquement le Sheet (34 colonnes, validations, couleurs) :**
+4. **Initialiser automatiquement le Sheet (5 onglets, 34 colonnes, validations, couleurs, KPI) :**
    - Renseignez les variables dans `.env.local` :
      ```bash
      GOOGLE_SHEET_ID=...
@@ -53,11 +53,13 @@ Toutes les variables d'environnement suivantes doivent être définies sur Verce
      ```bash
      npx tsx scripts/init-sheets.ts
      ```
-   - Ce script crée automatiquement les 4 onglets requis :
+     *(Ou sous PowerShell si vous préférez forcer le fichier d'environnement : `npx tsx --env-file=.env.local scripts/init-sheets.ts`)*
+   - Ce script crée automatiquement les 5 onglets requis :
      - `Commandes_et_Abandons` (34 colonnes avec validations déroulantes et couleurs)
      - `Tarifs_Livraison` (58 wilayas préremplies)
-     - `Offres` (Packs 1 et 2 pièces préremplis)
-     - `Variantes` (5 couleurs : Noir, Beige, Vert, Marron, Rouge)
+     - `Offres_Packs` (Packs 1 et 2 pièces préremplis)
+     - `Variantes_Produit` (5 coloris : Noir, Beige, Vert, Marron, Rouge)
+     - `Dashboard_KPI` (Formules Google Sheets dynamiques : Taux de confirmation, CA confirmé, AOV, etc.)
 
 ---
 

@@ -5,6 +5,7 @@ export const TAB_NAMES = {
   TARIFS: "Tarifs_Livraison",
   OFFRES: "Offres_Packs",
   VARIANTES: "Variantes_Produit",
+  DASHBOARD: "Dashboard_KPI",
 } as const;
 
 export const COMMANDES_COLUMNS = [
@@ -75,6 +76,21 @@ export const VARIANTES_COLUMNS = [
   "actif",
 ] as const;
 
+export const DASHBOARD_KPI_ROWS = [
+  ["لوحة مؤشرات الأداء الرئيسية (Dashboard KPI) — Porte feuille Classe", "", ""],
+  ["", "", ""],
+  ["المؤشر", "القيمة المحسوبة", "ملاحظات وتفاصيل"],
+  ["إجمالي الطلبات (Commandes)", '=COUNTIF(Commandes_et_Abandons!C:C, "Commande Site")', "عدد الطلبات المقدمة عبر الموقع"],
+  ["الطلبات المؤكدة (Confirmées)", '=COUNTIFS(Commandes_et_Abandons!C:C, "Commande Site", Commandes_et_Abandons!E:E, "Confirmée")', "الطلبات المقبولة من فريق التأكيد"],
+  ["نسبة التأكيد (Taux de Confirmation)", '=IF(B4>0, B5/B4, 0)', "نسبة الطلبات المؤكدة من الإجمالي"],
+  ["الطلبات المسلمة (Livrées)", '=COUNTIF(Commandes_et_Abandons!G:G, "Livrée")', "الطلبات التي تم تسليمها بنجاح للزبون"],
+  ["نسبة التسليم (Taux de Livraison)", '=IF(B5>0, B7/B5, 0)', "نسبة التسليم من الطلبات المؤكدة"],
+  ["الطلبات الملغاة (Annulées)", '=COUNTIF(Commandes_et_Abandons!E:E, "Annulée*")', "طلبات ملغاة من الزبون أو مكررة"],
+  ["السلات المتروكة (Paniers Abandonnés)", '=COUNTIF(Commandes_et_Abandons!C:C, "Panier Abandonné")', "زبائن أدخلوا أرقامهم دون إتمام الطلب"],
+  ["إجمالي المبيعات المؤكدة (دج)", '=SUMIFS(Commandes_et_Abandons!AF:AF, Commandes_et_Abandons!C:C, "Commande Site", Commandes_et_Abandons!E:E, "Confirmée")', "مجموع مبالغ الطلبات المؤكدة"],
+  ["متوسط قيمة الطلب المؤكد (AOV دج)", '=IF(B5>0, B11/B5, 0)', "متوسط قيمة السلة للطلب المؤكد"],
+];
+
 export const STATUT_CONFIRMATION_VALUES = [
   "En attente",
   "Confirmée",
@@ -116,6 +132,7 @@ export async function ensureSheetsInitialized(sheetId: string): Promise<void> {
     { title: TAB_NAMES.TARIFS, headers: TARIFS_COLUMNS },
     { title: TAB_NAMES.OFFRES, headers: OFFRES_COLUMNS },
     { title: TAB_NAMES.VARIANTES, headers: VARIANTES_COLUMNS },
+    { title: TAB_NAMES.DASHBOARD, headers: ["المؤشر", "القيمة المحسوبة", "ملاحظات وتفاصيل"] },
   ];
 
   // 1. Add any missing sheets
@@ -155,12 +172,17 @@ export async function ensureSheetsInitialized(sheetId: string): Promise<void> {
     });
 
     if (!headerCheck.data.values || headerCheck.data.values.length === 0) {
+      const valuesToInsert =
+        tab.title === TAB_NAMES.DASHBOARD
+          ? DASHBOARD_KPI_ROWS
+          : [tab.headers as unknown as unknown[]];
+
       await client.spreadsheets.values.update({
         spreadsheetId: sheetId,
         range: `${tab.title}!A1`,
         valueInputOption: "USER_ENTERED",
         requestBody: {
-          values: [tab.headers as unknown as unknown[]],
+          values: valuesToInsert,
         },
       });
     }
