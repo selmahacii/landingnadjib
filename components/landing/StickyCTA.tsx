@@ -16,6 +16,7 @@ export const StickyCTA: React.FC<StickyCTAProps> = ({
   useEffect(() => {
     const target = document.getElementById(targetId);
     if (!target) return;
+    if (typeof window === "undefined" || !("IntersectionObserver" in window)) return;
 
     // Use native IntersectionObserver: hide sticky button when form is visible in viewport
     const observer = new IntersectionObserver(
