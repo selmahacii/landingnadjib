@@ -651,7 +651,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           <select
             id="wilaya-select"
             data-testid="wilaya-select"
-            dir="rtl"
             value={selectedWilayaCode}
             onChange={handleWilayaChange}
             className="w-full pr-8 pl-3.5 py-2.5 text-sm text-neutral-900 text-right font-cairo focus:outline-none bg-white appearance-none cursor-pointer"
@@ -708,7 +707,6 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           <select
             id="commune-select"
             data-testid="commune-select"
-            dir="rtl"
             value={selectedCommune}
             disabled={!selectedWilayaCode}
             onChange={handleCommuneChange}
@@ -853,17 +851,18 @@ export const OrderForm: React.FC<OrderFormProps> = ({
           </div>
         ) : (
           <>
-            <div className="flex items-center justify-center gap-2 text-lg sm:text-xl font-bold font-cairo leading-tight">
-              {/* Shopping Bag Icon */}
+            <div className="flex items-center justify-center gap-2 text-lg sm:text-xl font-bold font-cairo leading-tight" dir="rtl">
               <svg
                 className="w-5 h-5 text-white shrink-0"
-                fill="currentColor"
-                viewBox="0 0 20 20"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
               >
                 <path
-                  fillRule="evenodd"
-                  d="M10 2a4 4 0 00-4 4v1H5a1 1 0 00-.994.89l-1 9A1 1 0 004 18h12a1 1 0 00.994-1.11l-1-9A1 1 0 0015 7h-1V6a4 4 0 00-4-4zm2 5V6a2 2 0 10-4 0v1h4zm-6 3a1 1 0 112 0 1 1 0 01-2 0zm7-1a1 1 0 100 2 1 1 0 000-2z"
-                  clipRule="evenodd"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
               <span>اطلب الآن</span>
