@@ -92,6 +92,13 @@ export const DASHBOARD_KPI_ROWS = [
   ["متوسط قيمة الطلب المؤكد (AOV دج)", '=IF(B5>0, B11/B5, 0)', "متوسط قيمة السلة للطلب المؤكد"],
 ];
 
+export const PARAMETRES_ROWS = [
+  ["cle", "valeur"],
+  ["header_bg_color", "#171717"],
+  ["header_text_color", "#fbbf24"],
+  ["header_text_ar", "🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة"],
+];
+
 export const STATUT_CONFIRMATION_VALUES = [
   "En attente",
   "Confirmée",
@@ -134,6 +141,7 @@ export async function ensureSheetsInitialized(sheetId: string): Promise<void> {
     { title: TAB_NAMES.OFFRES, headers: OFFRES_COLUMNS },
     { title: TAB_NAMES.VARIANTES, headers: VARIANTES_COLUMNS },
     { title: TAB_NAMES.DASHBOARD, headers: ["المؤشر", "القيمة المحسوبة", "ملاحظات وتفاصيل"] },
+    { title: TAB_NAMES.PARAMETRES, headers: ["cle", "valeur"] },
   ];
 
   // 1. Add any missing sheets
@@ -173,10 +181,14 @@ export async function ensureSheetsInitialized(sheetId: string): Promise<void> {
     });
 
     if (!headerCheck.data.values || headerCheck.data.values.length === 0) {
-      const valuesToInsert =
-        tab.title === TAB_NAMES.DASHBOARD
-          ? DASHBOARD_KPI_ROWS
-          : [tab.headers as unknown as unknown[]];
+      let valuesToInsert: unknown[][];
+      if (tab.title === TAB_NAMES.DASHBOARD) {
+        valuesToInsert = DASHBOARD_KPI_ROWS;
+      } else if (tab.title === TAB_NAMES.PARAMETRES) {
+        valuesToInsert = PARAMETRES_ROWS;
+      } else {
+        valuesToInsert = [tab.headers as unknown as unknown[]];
+      }
 
       await client.spreadsheets.values.update({
         spreadsheetId: sheetId,
