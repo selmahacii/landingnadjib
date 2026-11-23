@@ -262,24 +262,31 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         <label htmlFor="name-input" className="block text-sm font-semibold text-neutral-800 mb-1.5">
           الاسم واللقب *
         </label>
-        <input
-          id="name-input"
-          data-testid="name-input"
-          type="text"
-          value={nomComplet}
-          onFocus={handleFirstFocus}
-          onChange={(e) => {
-            setNomComplet(e.target.value);
-            lastFieldRef.current = "nom_complet";
-            if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-          }}
-          placeholder="مثال: يوسف بلحاج"
-          className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 transition-colors ${
-            errors.name
-              ? "border-red-400 focus:ring-red-400"
-              : "border-neutral-300 focus:ring-amber-500 focus:border-amber-500"
-          }`}
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+            <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          </div>
+          <input
+            id="name-input"
+            data-testid="name-input"
+            type="text"
+            value={nomComplet}
+            onFocus={handleFirstFocus}
+            onChange={(e) => {
+              setNomComplet(e.target.value);
+              lastFieldRef.current = "nom_complet";
+              if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
+            }}
+            placeholder="مثال: يوسف بلحاج"
+            className={`w-full bg-white border rounded-xl pr-10 pl-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 transition-colors ${
+              errors.name
+                ? "border-red-400 focus:ring-red-400"
+                : "border-neutral-300 focus:ring-amber-500 focus:border-amber-500"
+            }`}
+          />
+        </div>
         {errors.name && <p className="text-xs text-red-600 mt-1">{errors.name}</p>}
       </div>
 
@@ -288,25 +295,32 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         <label htmlFor="phone-input" className="block text-sm font-semibold text-neutral-800 mb-1.5">
           رقم الهاتف *
         </label>
-        <input
-          id="phone-input"
-          data-testid="phone-input"
-          type="tel"
-          dir="ltr"
-          value={telephone}
-          onFocus={handleFirstFocus}
-          onChange={(e) => {
-            setTelephone(e.target.value);
-            lastFieldRef.current = "telephone";
-            if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
-          }}
-          placeholder="05 / 06 / 07 XX XX XX XX"
-          className={`w-full bg-white border rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 text-right focus:outline-none focus:ring-2 transition-colors ${
-            errors.phone
-              ? "border-red-400 focus:ring-red-400"
-              : "border-neutral-300 focus:ring-amber-500 focus:border-amber-500"
-          }`}
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+            <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+            </svg>
+          </div>
+          <input
+            id="phone-input"
+            data-testid="phone-input"
+            type="tel"
+            dir="ltr"
+            value={telephone}
+            onFocus={handleFirstFocus}
+            onChange={(e) => {
+              setTelephone(e.target.value);
+              lastFieldRef.current = "telephone";
+              if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+            }}
+            placeholder="05 / 06 / 07 XX XX XX XX"
+            className={`w-full bg-white border rounded-xl pr-10 pl-3.5 py-2.5 text-sm text-neutral-900 text-right focus:outline-none focus:ring-2 transition-colors ${
+              errors.phone
+                ? "border-red-400 focus:ring-red-400"
+                : "border-neutral-300 focus:ring-amber-500 focus:border-amber-500"
+            }`}
+          />
+        </div>
         {errors.phone && <p className="text-xs text-red-600 mt-1">{errors.phone}</p>}
       </div>
 
@@ -315,17 +329,25 @@ export const OrderForm: React.FC<OrderFormProps> = ({
         <label htmlFor="address-input" className="block text-sm font-semibold text-neutral-800 mb-1.5">
           عنوان التوصيل (اختياري)
         </label>
-        <input
-          id="address-input"
-          type="text"
-          value={adresse}
-          onChange={(e) => {
-            setAdresse(e.target.value);
-            lastFieldRef.current = "adresse";
-          }}
-          placeholder="الحي، رقم المنزل أو معْلَم قريب..."
-          className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-        />
+        <div className="relative">
+          <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+            <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <input
+            id="address-input"
+            type="text"
+            value={adresse}
+            onChange={(e) => {
+              setAdresse(e.target.value);
+              lastFieldRef.current = "adresse";
+            }}
+            placeholder="الحي، رقم المنزل أو معْلَم قريب..."
+            className="w-full bg-white border border-neutral-300 rounded-xl pr-10 pl-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+          />
+        </div>
       </div>
 
       {/* Delivery validation message if missing */}
