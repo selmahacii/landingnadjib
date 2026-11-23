@@ -6,6 +6,7 @@ export const TAB_NAMES = {
   OFFRES: "Offres_Packs",
   VARIANTES: "Variantes_Produit",
   DASHBOARD: "Dashboard_KPI",
+  PARAMETRES: "Parametres_Site",
 } as const;
 
 export const COMMANDES_COLUMNS = [
