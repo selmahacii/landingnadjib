@@ -41,6 +41,29 @@ export const DEFAULT_OFFERS: Offer[] = [
   },
 ];
 
+function parseDzdNumber(val: unknown, defaultVal = 0): number {
+  if (typeof val === "number") return isNaN(val) ? defaultVal : val;
+  if (!val) return defaultVal;
+  const cleaned = String(val)
+    .replace(/[\u00a0\u202f\s]/g, "")
+    .replace(/DZD|DA|د\.?ج|دج/gi, "")
+    .replace(/,/g, "")
+    .trim();
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? defaultVal : num;
+}
+
+function parseInteger(val: unknown, defaultVal = 0): number {
+  if (typeof val === "number") return Math.round(val);
+  return Math.round(parseDzdNumber(val, defaultVal));
+}
+
+function isTruthy(val: unknown, defaultVal = false): boolean {
+  if (typeof val === "boolean") return val;
+  if (val === undefined || val === null || val === "") return defaultVal;
+  return ["TRUE", "1", "VRAI", "YES"].includes(String(val).trim().toUpperCase());
+}
+
 export async function getOffers(includeInactive = false): Promise<Offer[]> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
@@ -65,14 +88,14 @@ export async function getOffers(includeInactive = false): Promise<Offer[]> {
 
       const offer_id = String(row[0] || "").trim();
       const titre_ar = String(row[1] || "").trim();
-      const quantite = parseInt(String(row[2] || "1"), 10) || 1;
-      const prix_dzd = parseFloat(String(row[3] || "0")) || 0;
-      const prix_barre_dzd = parseFloat(String(row[4] || "0")) || 0;
+      const quantite = parseInteger(row[2], 1) || 1;
+      const prix_dzd = parseDzdNumber(row[3], 0);
+      const prix_barre_dzd = parseDzdNumber(row[4], 0);
       const badge_ar = String(row[5] || "").trim();
-      const livraison_gratuite = String(row[6] || "").trim().toUpperCase() === "TRUE";
-      const par_defaut = String(row[7] || "").trim().toUpperCase() === "TRUE";
-      const ordre = parseInt(String(row[8] || "0"), 10) || 0;
-      const actif = String(row[9] || "TRUE").trim().toUpperCase() === "TRUE";
+      const livraison_gratuite = isTruthy(row[6], false);
+      const par_defaut = isTruthy(row[7], false);
+      const ordre = parseInteger(row[8], 0);
+      const actif = isTruthy(row[9], true);
 
       if (actif || includeInactive) {
         offers.push({
@@ -109,23 +132,24 @@ export async function saveOffer(offer: Offer): Promise<void> {
   const existingRows = rows || [];
 
   let foundRowIndex = -1;
+  const targetId = offer.offer_id.trim().toLowerCase();
   for (let i = 1; i < existingRows.length; i++) {
-    if (existingRows[i] && existingRows[i][0] === offer.offer_id) {
+    if (existingRows[i] && String(existingRows[i][0] || "").trim().toLowerCase() === targetId) {
       foundRowIndex = i;
       break;
     }
   }
 
   const rowValues = [
-    offer.offer_id,
+    offer.offer_id.trim(),
     offer.titre_ar,
-    offer.quantite,
-    offer.prix_dzd,
-    offer.prix_barre_dzd,
-    offer.badge_ar,
+    Number(offer.quantite) || 1,
+    Number(offer.prix_dzd) || 0,
+    Number(offer.prix_barre_dzd) || 0,
+    offer.badge_ar || "",
     offer.livraison_gratuite ? "TRUE" : "FALSE",
     offer.par_defaut ? "TRUE" : "FALSE",
-    offer.ordre,
+    Number(offer.ordre) || 0,
     offer.actif ? "TRUE" : "FALSE",
   ];
 

@@ -58,12 +58,14 @@ export async function appendRow(
 
 export async function readRange(
   sheetId: string,
-  range: string
+  range: string,
+  valueRenderOption: "FORMATTED_VALUE" | "UNFORMATTED_VALUE" = "UNFORMATTED_VALUE"
 ): Promise<unknown[][]> {
   const sheets = await getSheetsClient();
   const res = await sheets.spreadsheets.values.get({
     spreadsheetId: sheetId,
     range,
+    valueRenderOption,
   });
   return (res.data.values as unknown[][]) || [];
 }

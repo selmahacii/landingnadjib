@@ -19,6 +19,9 @@ export const OffersTable: React.FC<OffersTableProps> = ({ initialOffers }) => {
   ) => {
     setOffers((prev) =>
       prev.map((o) => {
+        if (field === "par_defaut" && value === true) {
+          return o.offer_id === id ? { ...o, par_defaut: true } : { ...o, par_defaut: false };
+        }
         if (o.offer_id !== id) return o;
         return { ...o, [field]: value };
       })

@@ -29,6 +29,7 @@ export async function POST(req: NextRequest) {
     });
 
     revalidatePath("/");
+    revalidatePath("/admin/offers");
 
     return NextResponse.json({ ok: true });
   } catch (error) {

@@ -37,6 +37,18 @@ export function getDefaultTariffs(): DeliveryTariff[] {
   });
 }
 
+function parseDzdNumber(val: unknown, defaultVal = 0): number {
+  if (typeof val === "number") return isNaN(val) ? defaultVal : val;
+  if (!val) return defaultVal;
+  const cleaned = String(val)
+    .replace(/[\u00a0\u202f\s]/g, "")
+    .replace(/DZD|DA|د\.?ج|دج/gi, "")
+    .replace(/,/g, "")
+    .trim();
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? defaultVal : num;
+}
+
 export async function getDeliveryTariffs(includeInactive = false): Promise<DeliveryTariff[]> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
@@ -57,8 +69,8 @@ export async function getDeliveryTariffs(includeInactive = false): Promise<Deliv
 
       const wilaya_code = String(row[0] || "").trim();
       const wilaya_ar = String(row[1] || "").trim();
-      const prix_domicile = parseFloat(String(row[2] || "0")) || 0;
-      const prix_stopdesk = parseFloat(String(row[3] || "0")) || 0;
+      const prix_domicile = parseDzdNumber(row[2], 0);
+      const prix_stopdesk = parseDzdNumber(row[3], 0);
       const actif = String(row[4] || "TRUE").trim().toUpperCase() === "TRUE";
 
       if (actif || includeInactive) {

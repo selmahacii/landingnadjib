@@ -59,6 +59,18 @@ export const DEFAULT_VARIANTS: Variant[] = [
   },
 ];
 
+function parseDzdNumber(val: unknown, defaultVal = 0): number {
+  if (typeof val === "number") return isNaN(val) ? defaultVal : val;
+  if (!val) return defaultVal;
+  const cleaned = String(val)
+    .replace(/[\u00a0\u202f\s]/g, "")
+    .replace(/DZD|DA|د\.?ج|دج/gi, "")
+    .replace(/,/g, "")
+    .trim();
+  const num = parseFloat(cleaned);
+  return isNaN(num) ? defaultVal : num;
+}
+
 export async function getVariants(includeInactive = false): Promise<Variant[]> {
   const sheetId = process.env.GOOGLE_SHEET_ID;
   if (!sheetId) {
@@ -83,7 +95,7 @@ export async function getVariants(includeInactive = false): Promise<Variant[]> {
 
       const variant_id = String(row[0] || "").trim();
       const nom_variante_ar = String(row[1] || "").trim();
-      const supplement_prix_dzd = parseFloat(String(row[2] || "0")) || 0;
+      const supplement_prix_dzd = parseDzdNumber(row[2], 0);
       const defaultVariant = DEFAULT_VARIANTS.find(
         (d) => d.variant_id.toLowerCase() === variant_id.toLowerCase()
       );
