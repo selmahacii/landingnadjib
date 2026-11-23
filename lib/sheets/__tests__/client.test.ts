@@ -46,6 +46,19 @@ describe("Google Sheets Client", () => {
     await expect(getSheetsClient()).rejects.toThrow(SheetsConfigError);
   });
 
+  it("handles GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY with surrounding quotes and escaped newlines", async () => {
+    process.env.GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY =
+      '"-----BEGIN PRIVATE KEY-----\\nMIIEvgIBA\\n-----END PRIVATE KEY-----\\n"';
+
+    await getSheetsClient();
+
+    expect(google.auth.JWT).toHaveBeenCalledWith(
+      expect.objectContaining({
+        key: "-----BEGIN PRIVATE KEY-----\nMIIEvgIBA\n-----END PRIVATE KEY-----",
+      })
+    );
+  });
+
   it("appendRow calls spreadsheets.values.append with correct params", async () => {
     await appendRow("test-sheet-id", "Commandes_et_Abandons", ["val1", "val2"]);
 

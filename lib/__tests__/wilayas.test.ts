@@ -15,4 +15,11 @@ describe("wilayas.json dataset", () => {
       expect(w.communes.length).toBeGreaterThan(0);
     });
   });
+
+  it("wilaya 16 (الجزائر) contains exactly 57 communes", () => {
+    const alger = wilayas.find((w) => w.code === "16");
+    expect(alger).toBeDefined();
+    expect(alger?.name_ar).toBe("الجزائر");
+    expect(alger?.communes).toHaveLength(57);
+  });
 });

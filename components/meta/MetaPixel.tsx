@@ -8,7 +8,12 @@ interface MetaPixelProps {
   pixelId?: string;
 }
 
-export const MetaPixel: React.FC<MetaPixelProps> = ({ pixelId }) => {
+export const MetaPixel: React.FC<MetaPixelProps> = ({ pixelId: propPixelId }) => {
+  const pixelId =
+    propPixelId ||
+    process.env.NEXT_PUBLIC_META_PIXEL_ID ||
+    process.env.META_PIXEL_ID;
+
   useEffect(() => {
     if (!pixelId) return;
 

@@ -36,7 +36,8 @@ function hashSha256(value: string): string {
 export async function sendCapiEvent(
   params: CapiEventParams
 ): Promise<{ ok: boolean; status?: number; data?: any }> {
-  const pixelId = process.env.META_PIXEL_ID;
+  const pixelId =
+    process.env.NEXT_PUBLIC_META_PIXEL_ID || process.env.META_PIXEL_ID;
   const token = process.env.META_CAPI_TOKEN;
   const testCode = process.env.META_TEST_EVENT_CODE;
 

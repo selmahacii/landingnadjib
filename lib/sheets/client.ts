@@ -19,8 +19,17 @@ export async function getSheetsClient(): Promise<sheets_v4.Sheets> {
     );
   }
 
-  // Handle escaped newlines in env variables
-  privateKey = privateKey.replace(/\\n/g, "\n");
+  // Robust parsing: strip leading/trailing quotes (single or double) and whitespace
+  privateKey = privateKey.trim();
+  if (
+    (privateKey.startsWith('"') && privateKey.endsWith('"')) ||
+    (privateKey.startsWith("'") && privateKey.endsWith("'"))
+  ) {
+    privateKey = privateKey.slice(1, -1);
+  }
+
+  // Handle all newline escape variants (\\n, \n, literal newlines)
+  privateKey = privateKey.replace(/\\n/g, "\n").trim();
 
   const auth = new google.auth.JWT({
     email,
