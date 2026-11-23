@@ -103,43 +103,57 @@ export const WilayaCommuneSelect: React.FC<WilayaCommuneSelectProps> = ({
           <label htmlFor="wilaya-select" className="block text-sm font-semibold text-neutral-800 mb-1.5">
             الولاية *
           </label>
-          <select
-            id="wilaya-select"
-            data-testid="wilaya-select"
-            value={selectedWilayaCode}
-            onChange={handleWilayaChange}
-            className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
-          >
-            <option value="">اختر الولاية...</option>
-            {wilayasData.map((w) => (
-              <option key={w.code} value={w.code}>
-                {w.code} - {w.name_ar}
-              </option>
-            ))}
-          </select>
+          <div className="relative">
+            <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+              <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+              </svg>
+            </div>
+            <select
+              id="wilaya-select"
+              data-testid="wilaya-select"
+              value={selectedWilayaCode}
+              onChange={handleWilayaChange}
+              className="w-full bg-white border border-neutral-300 rounded-xl pr-10 pl-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+            >
+              <option value="">اختر الولاية...</option>
+              {wilayasData.map((w) => (
+                <option key={w.code} value={w.code}>
+                  {w.code} - {w.name_ar}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div>
           <label htmlFor="commune-select" className="block text-sm font-semibold text-neutral-800 mb-1.5">
             البلدية *
           </label>
-          <select
-            id="commune-select"
-            data-testid="commune-select"
-            value={selectedCommune}
-            onChange={handleCommuneChange}
-            disabled={!selectedWilayaCode || communes.length === 0}
-            className="w-full bg-white border border-neutral-300 rounded-xl px-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed"
-          >
-            <option value="">
-              {!selectedWilayaCode ? "اختر الولاية أولاً" : "اختر البلدية..."}
-            </option>
-            {communes.map((c, i) => (
-              <option key={i} value={c}>
-                {c}
+          <div className="relative">
+            <div className="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+              <svg className="w-5 h-5 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+            <select
+              id="commune-select"
+              data-testid="commune-select"
+              value={selectedCommune}
+              onChange={handleCommuneChange}
+              disabled={!selectedWilayaCode || communes.length === 0}
+              className="w-full bg-white border border-neutral-300 rounded-xl pr-10 pl-3.5 py-2.5 text-sm text-neutral-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed"
+            >
+              <option value="">
+                {!selectedWilayaCode ? "اختر الولاية أولاً" : "اختر البلدية..."}
               </option>
-            ))}
-          </select>
+              {communes.map((c, i) => (
+                <option key={i} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
