@@ -16,8 +16,8 @@ export const DEFAULT_VARIANTS: Variant[] = [
     variant_id: "var_noir",
     nom_variante_ar: "أسود (Noir)",
     supplement_prix_dzd: 0,
-    image_url: "",
-    thumb_url: "",
+    image_url: "/images/wallets/noir.webp",
+    thumb_url: "/images/wallets/noir.webp",
     ordre: 1,
     actif: true,
   },
@@ -25,8 +25,8 @@ export const DEFAULT_VARIANTS: Variant[] = [
     variant_id: "var_beige",
     nom_variante_ar: "بيج (Beige)",
     supplement_prix_dzd: 0,
-    image_url: "",
-    thumb_url: "",
+    image_url: "/images/wallets/beige.webp",
+    thumb_url: "/images/wallets/beige.webp",
     ordre: 2,
     actif: true,
   },
@@ -34,8 +34,8 @@ export const DEFAULT_VARIANTS: Variant[] = [
     variant_id: "var_vert",
     nom_variante_ar: "أخضر (Vert)",
     supplement_prix_dzd: 0,
-    image_url: "",
-    thumb_url: "",
+    image_url: "/images/wallets/vert.webp",
+    thumb_url: "/images/wallets/vert.webp",
     ordre: 3,
     actif: true,
   },
@@ -43,8 +43,8 @@ export const DEFAULT_VARIANTS: Variant[] = [
     variant_id: "var_marron",
     nom_variante_ar: "بني (Marron)",
     supplement_prix_dzd: 0,
-    image_url: "",
-    thumb_url: "",
+    image_url: "/images/wallets/marron.webp",
+    thumb_url: "/images/wallets/marron.webp",
     ordre: 4,
     actif: true,
   },
@@ -52,8 +52,8 @@ export const DEFAULT_VARIANTS: Variant[] = [
     variant_id: "var_rouge",
     nom_variante_ar: "أحمر (Rouge)",
     supplement_prix_dzd: 0,
-    image_url: "",
-    thumb_url: "",
+    image_url: "/images/wallets/rouge.webp",
+    thumb_url: "/images/wallets/rouge.webp",
     ordre: 5,
     actif: true,
   },
@@ -84,15 +84,20 @@ export async function getVariants(includeInactive = false): Promise<Variant[]> {
       const variant_id = String(row[0] || "").trim();
       const nom_variante_ar = String(row[1] || "").trim();
       const supplement_prix_dzd = parseFloat(String(row[2] || "0")) || 0;
-      const image_url = String(row[3] || "").trim();
-      const thumb_url = String(row[4] || "").trim();
-      const ordre = parseInt(String(row[5] || "0"), 10) || 0;
+      const defaultVariant = DEFAULT_VARIANTS.find(
+        (d) => d.variant_id.toLowerCase() === variant_id.toLowerCase()
+      );
+      const rawImageUrl = String(row[3] || "").trim();
+      const rawThumbUrl = String(row[4] || "").trim();
+      const image_url = rawImageUrl || defaultVariant?.image_url || "";
+      const thumb_url = rawThumbUrl || defaultVariant?.thumb_url || image_url;
+      const ordre = parseInt(String(row[5] || "0"), 10) || defaultVariant?.ordre || 0;
       const actif = String(row[6] || "TRUE").trim().toUpperCase() === "TRUE";
 
       if (actif || includeInactive) {
         variants.push({
           variant_id,
-          nom_variante_ar,
+          nom_variante_ar: nom_variante_ar || defaultVariant?.nom_variante_ar || variant_id,
           supplement_prix_dzd,
           image_url,
           thumb_url,

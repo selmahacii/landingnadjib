@@ -12,7 +12,7 @@ export const DEFAULT_SITE_SETTINGS: SiteSettings = {
   header_bg_color: "#171717",
   header_text_color: "#fbbf24",
   header_text_ar: "🚚 توصيل متوفر لـ 58 ولاية | 💵 الدفع عند الاستلام بعد معاينة السلعة",
-  main_image_url: "",
+  main_image_url: "/images/wallets/main.webp",
 };
 
 export async function getSiteSettings(): Promise<SiteSettings> {

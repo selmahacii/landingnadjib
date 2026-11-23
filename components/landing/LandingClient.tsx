@@ -135,16 +135,16 @@ export const LandingClient: React.FC<LandingClientProps> = ({
           <div className="w-full">
             <Gallery
               layout="grid"
+              variants={variants}
+              selectedVariantId={selectedVariantId}
+              onSelectVariant={(variantId) => {
+                setSelectedVariantId(variantId);
+              }}
               images={galleryImages.length > 0 ? galleryImages : activeImage ? [activeImage] : []}
               activeIndex={safeGalleryIndex}
               onSelectImage={(idx) => {
-                const selectedUrl = galleryImages[idx];
-                if (selectedUrl) {
-                  const matchingVariant = variants.find((v) => v.image_url === selectedUrl);
-                  if (matchingVariant) {
-                    setSelectedVariantId(matchingVariant.variant_id);
-                  }
-                }
+                const target = variants[idx];
+                if (target) setSelectedVariantId(target.variant_id);
               }}
             />
           </div>
