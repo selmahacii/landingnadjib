@@ -4,7 +4,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { Gallery } from "../Gallery";
 import type { Variant } from "@/lib/sheets/variants";
 
-describe("Gallery component", () => {
+describe("Gallery component (Minimalist)", () => {
   const mockImages = [
     "https://example.com/img1.webp",
     "https://example.com/img2.webp",
@@ -60,7 +60,6 @@ describe("Gallery component", () => {
     const renderedImages = gridContainer?.querySelectorAll("img");
     expect(renderedImages?.length).toBe(4);
 
-    // No separate horizontal thumbnails scrollbar row in legacy image-only grid
     const thumbnailScrollbar = container.querySelector(".overflow-x-auto");
     expect(thumbnailScrollbar).toBeNull();
   });
@@ -72,7 +71,7 @@ describe("Gallery component", () => {
     expect(thumbnailRow).not.toBeNull();
   });
 
-  it("with variants renders independent cards and outlines active variant with border-amber-600", () => {
+  it("with variants renders full-width minimal slides and calls onSelectVariant on click", () => {
     const onSelectVariant = vi.fn();
     const { container } = render(
       <Gallery
@@ -82,20 +81,25 @@ describe("Gallery component", () => {
       />
     );
 
-    // Active variant is var_beige
-    const activeElements = container.querySelectorAll(".border-amber-600");
-    expect(activeElements.length).toBeGreaterThan(0);
+    // Each variant has its own full-width slide (snap-center w-full)
+    const slides = container.querySelectorAll(".snap-center");
+    expect(slides.length).toBe(3);
 
-    // Check that clicking a card triggers onSelectVariant
-    const noirCard = screen.getAllByAltText("أسود (Noir)")[0]?.closest(".cursor-pointer");
-    expect(noirCard).not.toBeNull();
-    if (noirCard) {
-      fireEvent.click(noirCard);
+    // Minimalist: no cluttered text banners
+    expect(screen.queryByText(/اسحب لمشاهدة باقي الألوان/i)).toBeNull();
+    expect(screen.queryByText(/1 \/ 5/i)).toBeNull();
+    expect(screen.queryByText(/محدد ✓/i)).toBeNull();
+
+    // Clicking a slide triggers onSelectVariant
+    const noirSlide = slides[0];
+    expect(noirSlide).toBeDefined();
+    if (noirSlide) {
+      fireEvent.click(noirSlide);
       expect(onSelectVariant).toHaveBeenCalledWith("var_noir");
     }
   });
 
-  it("renders swipe helper and navigation arrows on mobile", () => {
+  it("renders discreet navigation buttons for multi-variant gallery", () => {
     const onSelectVariant = vi.fn();
     render(
       <Gallery
@@ -105,8 +109,7 @@ describe("Gallery component", () => {
       />
     );
 
-    expect(screen.getByText(/اسحب لمشاهدة باقي الألوان/i)).toBeDefined();
-    expect(screen.getByLabelText("اللون التالي")).toBeDefined();
-    expect(screen.getByLabelText("اللون السابق")).toBeDefined();
+    expect(screen.getByLabelText("التالي")).toBeDefined();
+    expect(screen.getByLabelText("السابق")).toBeDefined();
   });
 });
