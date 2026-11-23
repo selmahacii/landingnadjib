@@ -8,7 +8,6 @@ import type { DeliveryTariff } from "@/lib/sheets/delivery";
 import { Gallery } from "./Gallery";
 import { VariantPicker } from "./VariantPicker";
 import { OfferPicker } from "./OfferPicker";
-import { BenefitsSection } from "./BenefitsSection";
 import { WilayaCommuneSelect, type DeliverySelection } from "./WilayaCommuneSelect";
 import { OrderForm } from "./OrderForm";
 import { StickyCTA } from "./StickyCTA";
@@ -192,9 +191,6 @@ export const LandingClient: React.FC<LandingClientProps> = ({
             onSubmitSuccess={handleSubmitSuccess}
           />
         </div>
-
-        {/* Benefits & Features Grid */}
-        <BenefitsSection />
       </main>
 
       {/* Sticky CTA for Mobile */}
