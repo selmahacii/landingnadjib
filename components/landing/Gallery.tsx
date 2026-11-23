@@ -68,7 +68,7 @@ export const Gallery: React.FC<GalleryProps> = ({
 
     return (
       <div className="w-full flex flex-col gap-3">
-        <div className="relative w-full aspect-square bg-neutral-100 rounded-2xl overflow-hidden flex items-center justify-center">
+        <div className="relative w-full aspect-square bg-[#ebebeb] rounded-none md:rounded-2xl overflow-hidden flex items-center justify-center">
           {currentImage ? (
             <Image
               src={currentImage}
@@ -76,7 +76,7 @@ export const Gallery: React.FC<GalleryProps> = ({
               fill
               sizes="(max-width: 768px) 100vw, 600px"
               priority={safeIndex === 0}
-              className="object-contain p-2"
+              className="object-contain"
             />
           ) : (
             <span className="text-sm font-medium text-neutral-400">Porte feuille Classe</span>
@@ -179,11 +179,11 @@ export const Gallery: React.FC<GalleryProps> = ({
 
   return (
     <div className="w-full relative group" dir="rtl">
-      {/* Full-Width Swipe Carousel Track */}
+      {/* Full-Width Swipe Carousel Track with 0 Border on Mobile */}
       <div
         ref={swipeContainerRef}
         onScroll={handleScroll}
-        className="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar touch-pan-x rounded-2xl bg-neutral-100"
+        className="w-full flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar touch-pan-x rounded-none md:rounded-2xl bg-[#ebebeb] shadow-none"
       >
         {variants.map((v, idx) => {
           const isSelected = v.variant_id === activeVariantId;
@@ -196,7 +196,7 @@ export const Gallery: React.FC<GalleryProps> = ({
                 slideRefs.current[v.variant_id] = el;
               }}
               onClick={() => handleSelectVariant(v.variant_id, idx)}
-              className="w-full shrink-0 snap-center aspect-square relative flex items-center justify-center cursor-pointer select-none"
+              className="w-full shrink-0 snap-center aspect-square relative flex items-center justify-center cursor-pointer select-none bg-[#ebebeb]"
             >
               <Image
                 src={imageUrl}
@@ -204,7 +204,7 @@ export const Gallery: React.FC<GalleryProps> = ({
                 fill
                 sizes="(max-width: 768px) 100vw, 550px"
                 priority={idx === 0}
-                className="object-contain p-4 md:p-6"
+                className="object-contain"
               />
             </div>
           );
@@ -240,7 +240,7 @@ export const Gallery: React.FC<GalleryProps> = ({
 
       {/* Clean Minimalist Pagination Dots */}
       {variants.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 pt-3">
+        <div className="flex items-center justify-center gap-1.5 py-3">
           {variants.map((v, idx) => {
             const isSelected = v.variant_id === activeVariantId;
             return (
@@ -251,7 +251,7 @@ export const Gallery: React.FC<GalleryProps> = ({
                 aria-label={`انتقال إلى ${v.nom_variante_ar}`}
                 className={`transition-all duration-300 rounded-full ${
                   isSelected
-                    ? "w-6 h-1.5 bg-neutral-900"
+                    ? "w-5 h-1.5 bg-neutral-900"
                     : "w-1.5 h-1.5 bg-neutral-300 hover:bg-neutral-400"
                 }`}
               />

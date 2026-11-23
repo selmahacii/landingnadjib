@@ -10,6 +10,8 @@ const config: Config = {
     extend: {
       fontFamily: {
         tajawal: ["var(--font-tajawal)", "sans-serif"],
+        cairo: ["var(--font-cairo)", "sans-serif"],
+        heading: ["var(--font-heading)", "sans-serif"],
       },
     },
   },

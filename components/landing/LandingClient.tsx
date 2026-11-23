@@ -128,9 +128,9 @@ export const LandingClient: React.FC<LandingClientProps> = ({
         <span>{siteSettings.header_text_ar}</span>
       </header>
 
-      {/* Main Container */}
-      <main className="max-w-xl md:max-w-5xl mx-auto px-4 py-5">
-        <div className="md:grid md:grid-cols-2 md:gap-8 md:items-start space-y-6 md:space-y-0">
+      {/* Main Container: 0 padding on mobile for edge-to-edge photo with 0 border */}
+      <main className="max-w-xl md:max-w-5xl mx-auto px-0 md:px-4 py-0 md:py-6">
+        <div className="md:grid md:grid-cols-2 md:gap-8 md:items-start space-y-4 md:space-y-0">
           {/* Column 1: Gallery */}
           <div className="w-full">
             <Gallery
@@ -150,20 +150,36 @@ export const LandingClient: React.FC<LandingClientProps> = ({
           </div>
 
           {/* Column 2: Sticky column with Title, Price, Pickers and Order Form */}
-          <div className="md:sticky md:top-6 space-y-6">
+          <div className="px-4 md:px-0 md:sticky md:top-6 space-y-6">
             {/* Product Title & Prominent Red Price */}
-            <div className="text-center md:text-right space-y-1">
-              <span className="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full">
-                منتج أصلي 100%
-              </span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
+            <div className="text-right space-y-2 pt-1 md:pt-0">
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 bg-amber-50 text-amber-900 border border-amber-300 text-xs font-bold px-3 py-1 rounded-full font-cairo shadow-xs">
+                  <span>✨ منتج أصلي ومضمون 100%</span>
+                </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-neutral-900 tracking-tight font-heading leading-tight">
                 Porte feuille Classe
               </h1>
-              <p className="text-2xl font-extrabold text-red-600">
-                {selectedOffer?.prix_dzd} دج
+
+              <p className="text-base sm:text-lg font-bold text-neutral-800 font-cairo leading-snug">
+                الأناقة والفخامة في التفاصيل — محفظة جلدية رجالية راقية
               </p>
-              <p className="text-sm text-neutral-600">
-                محفظة جلدية راقية للرجال - تصميم عملي وسعة ممتازة للبطاقات والنقود
+
+              <div className="flex items-baseline gap-3 pt-0.5">
+                <span className="text-3xl sm:text-4xl font-black text-red-600 font-cairo tracking-tight">
+                  {selectedOffer?.prix_dzd?.toLocaleString()} دج
+                </span>
+                {selectedOffer?.prix_barre_dzd > selectedOffer?.prix_dzd && (
+                  <span className="text-base sm:text-lg font-bold text-neutral-400 line-through font-cairo">
+                    {selectedOffer?.prix_barre_dzd?.toLocaleString()} دج
+                  </span>
+                )}
+              </div>
+
+              <p className="text-xs sm:text-sm text-neutral-500 font-tajawal leading-relaxed">
+                محفظة جلدية راقية للرجال بتصميم عملي وسعة ممتازة للبطاقات والنقود مع نظام سحب سريع.
               </p>
             </div>
 

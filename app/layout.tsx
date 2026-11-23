@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Tajawal } from "next/font/google";
+import { Tajawal, Cairo, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 const tajawal = Tajawal({
@@ -8,6 +8,20 @@ const tajawal = Tajawal({
   display: "swap",
   preload: true,
   variable: "--font-tajawal",
+});
+
+const cairo = Cairo({
+  subsets: ["arabic", "latin"],
+  weight: ["600", "700", "800", "900"],
+  display: "swap",
+  variable: "--font-cairo",
+});
+
+const plusJakarta = Plus_Jakarta_Sans({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  display: "swap",
+  variable: "--font-heading",
 });
 
 import { MetaPixel } from "@/components/meta/MetaPixel";
@@ -32,7 +46,7 @@ export default function RootLayout({
     process.env.NEXT_PUBLIC_META_PIXEL_ID || process.env.META_PIXEL_ID;
 
   return (
-    <html lang="ar" dir="rtl" className={tajawal.variable}>
+    <html lang="ar" dir="rtl" className={`${tajawal.variable} ${cairo.variable} ${plusJakarta.variable}`}>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
